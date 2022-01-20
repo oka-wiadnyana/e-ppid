@@ -1,0 +1,20 @@
+.ck-editor__editable_inline {
+  min-height: 400px;
+  border: 1px groove rgb(102, 98, 98) !important;
+}
+
+.image.image-style-block-align-right {
+  margin-left: auto;
+}
+
+.image.image-style-block-align-right {
+  margin-left: 0;
+}
+
+.image {
+  margin: 0 auto;
+}
+
+figure > img {
+  width: 100%;
+}
