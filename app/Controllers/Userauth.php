@@ -130,8 +130,9 @@ class Userauth extends BaseController
 
         if (count($find_email) === 1) {
             if (password_verify($password, $find_email[0]['password'])) {
-                session()->set('login', true);
-                session()->set('email', $email);
+                session()->set('user_login', true);
+                session()->set('user_email', $email);
+                return redirect()->to('userpage/v_permohonan');
             } else {
                 session()->setFlashdata('gagal', 'Password salah');
                 return redirect()->to('userauth');
@@ -140,5 +141,11 @@ class Userauth extends BaseController
             session()->setFlashdata('gagal', 'Email tidak ditemukan');
             return redirect()->to('userauth');
         }
+    }
+
+    public function logout()
+    {
+        session()->destroy();
+        return redirect()->to('userpage');
     }
 }

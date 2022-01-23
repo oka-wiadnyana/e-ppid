@@ -36,6 +36,16 @@
                            <li><a href="#">Biaya Layanan</a></li>
                        </ul>
                    </li>
+                   <?php if (session()->get('user_login') === true) : ?>
+                       <li class="dropdown"><a href="#"><span>Permohonan</span> <i class="bi bi-chevron-down"></i></a>
+                           <ul>
+                               <li><a href="<?= base_url('userpage/listinformasi/berkala'); ?>">Informasi Berkala</a></li>
+                               <li><a href="<?= base_url('userpage/listinformasi/serta_merta'); ?>">Informasi Serta Merta</a></li>
+                               <li><a href="<?= base_url('userpage/listinformasi/info_setiap_saat'); ?>">Informasi Tersedia Setiap Saat</a></li>
+                               <li><a href="<?= base_url('userpage/videoinformasi'); ?>">Video Informasi Publik</a></li>
+                           </ul>
+                       </li>
+                   <?php endif; ?>
                    <li><a class="nav-link scrollto" href="#about">Laporan</a></li>
                    <!-- <li><a class="nav-link scrollto" href="#about">Login</a></li> -->
                </ul>

@@ -41,7 +41,8 @@
   margin-top: 8rem;
 }
 
-#permohonan {
+#permohonan,
+#daftar_permohonan {
   margin-top: 8rem;
 }
 
@@ -114,4 +115,14 @@ hr:not([size]) {
 
 .profil {
   margin-top: 8rem;
+}
+
+small.invalid-validation {
+  color: rgb(255, 0, 0);
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.dataTables_length {
+  margin-bottom: 1rem;
 }

@@ -30,7 +30,7 @@
   <link href="<?= base_url('anyar'); ?>/assets/css/anyar2.css" rel="stylesheet">
 
   <!-- My Css -->
-  <link rel="stylesheet" href="<?= base_url('anyar'); ?>/assets/css/myanyar.css">
+  <link rel="stylesheet" href="<?= base_url('anyar'); ?>/assets/css/myanyar2.css">
   <link rel="stylesheet" href="<?= base_url('ckeditor5-document/ckeditor2.css'); ?> ">
 
   <!-- =======================================================
@@ -43,6 +43,7 @@
   <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
 
   <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+  <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 </head>
 
@@ -72,6 +73,34 @@
 
   <!-- Datatable -->
   <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+
+  <script>
+    <?php if (session()->has('fail')) : ?>
+      <?php $errors = session()->getFlashdata('fail');
+      $msg = "";
+      foreach ($errors as $e) {
+        $msg .= $e . ', ';
+      }
+      ?>
+      Swal.fire({
+        icon: 'error',
+        text: '<?= $msg; ?>'
+
+      })
+    <?php elseif (session()->has('success')) : ?>
+      Swal.fire({
+        icon: 'success',
+        text: '<?= session()->getFlashdata('success'); ?>'
+      })
+    <?php elseif (session()->has('email')) : ?>
+      Swal.fire({
+        icon: 'success',
+        text: '<?= session()->getFlashdata('email'); ?>'
+      })
+
+    <?php endif; ?>
+  </script>
+
 
 </body>
 

@@ -8,17 +8,27 @@ use App\Models\LinkModel;
 use App\Models\VideoModelDt;
 use App\Models\UservideoModel;
 use App\Models\ProfilPpidModel;
+use App\Models\PermohonanModel;
+use App\Models\UserauthModel;
+use Config\Services;
+use CodeIgniter\I18n;
+use CodeIgniter\I18n\Time;
 
 class Userpage extends BaseController
 {
     // protected $profil;
     public function __construct()
     {
+        $this->validation = Services::validation();
+        $this->email = Services::email();
+        $this->time = new Time();
+        $this->userModel = new UserauthModel();
         $this->linkModel = new LinkModel();
         $this->profileModel = new ProfileModel();
         $this->videoModel = new VideoModelDt();
         $this->uservideoModel = new UservideoModel();
         $this->profilPpidModel = new ProfilPpidModel();
+        $this->permohonanModel = new PermohonanModel();
 
 
         session()->remove(['profil_nama', 'profil_nama_pendek', 'profil_alamat', 'profil_nomor_telepon', 'profil_nomor_fax', 'profil_email', 'profil_link_satker', 'profil_link_youtube', 'profil_link_facebook', 'profil_link_instagram', 'profil_link_twitter', 'profil_link_video_dasboard', 'profil_logo']);
@@ -171,6 +181,44 @@ class Userpage extends BaseController
 
     public function v_permohonan()
     {
+        $data = [
+            'title' => 'Daftar Permohonan'
+        ];
+
+        return view('user/v_permohonan_informasi', $data);
+    }
+
+    public function data_permohonan_datatable()
+    {
+        $request = Services::request();
+        $datamodel = new PermohonanModel($request);
+        if ($request->getMethod(true) == 'POST') {
+            $lists = $datamodel->get_datatables();
+            $data = [];
+            $no = $request->getPost("start");
+            foreach ($lists as $list) {
+                $no++;
+                $row = [];
+                $row[] = $no;
+                $row[] = $list->jenis_informasi;
+                $row[] = $list->tanggal_permohonan;
+                $row[] = $list->isi_permohonan;
+                $row[] = $list->file_permohonan;
+                $row[] = "<a href='' class='btn btn-warning edit_btn' data-id=" . $list->permohonan_id . " style='border-radius:50%'><i class='bx bx-edit-alt'></i></a><a href='' class='btn btn-danger delete_btn' data-id=" . $list->permohonan_id . " data-nama=" . $list->jenis_informasi . " style='border-radius:50%'><i class='bx bx-trash'></i></a>";
+                $data[] = $row;
+            }
+            $output = [
+                "draw" => $request->getPost('draw'),
+                "recordsTotal" => $datamodel->count_all(),
+                "recordsFiltered" => $datamodel->count_filtered(),
+                "data" => $data
+            ];
+            echo json_encode($output);
+        }
+    }
+
+    public function v_tambah_permohonan()
+    {
         $db = db_connect();
         $builder = $db->table('jenis_informasi');
         $data_jenis = $builder->get()->getResultArray();
@@ -181,12 +229,83 @@ class Userpage extends BaseController
         return view('user/form_permohonan', $data);
     }
 
+
+
     public function insert_permohonan()
     {
-        $jenis_permohonan = $this->request->getVar('jenis_informasi');
+        $jenis_informasi = $this->request->getVar('jenis_informasi');
         $isi_permohonan = $this->request->getVar('isi_permohonan');
-        $lampiran_file = $this->request->getFile('lampiran_file');
+        $file_permohonan = $this->request->getFile('file_permohonan');
+        $user_email = $this->request->getVar('user_email');
 
-        dd($jenis_permohonan, $isi_permohonan, $lampiran_file);
+        // dd($jenis_permohonan, $isi_permohonan, $lampiran_file);
+        if (!$this->validate([
+            'jenis_informasi' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Jenis permohonan harus diisi'
+                ]
+            ],
+            'isi_permohonan' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Isi permohonan harus diisi'
+                ]
+            ],
+            'file_permohonan' => [
+                'rules' => 'ext_in[file_permohonan,pdf]',
+                'errors' => [
+                    'ext_in' => 'File permohonan salah'
+                ]
+            ]
+        ])) {
+            session()->setFlashdata('validasi', $this->validation->getErrors());
+            return redirect()->to(base_url('userpage/v_permohonan'));
+        }
+
+        if ($file_permohonan->isValid()) {
+            $nama_file = "file-permohonan-" . time();
+            $ext = $file_permohonan->getClientExtension();
+            $nama_file = $nama_file . '.' . $ext;
+            $file_permohonan->move('user_file', $nama_file);
+
+            $data_insert = [
+                'id_jenis_informasi' => $jenis_informasi,
+                'tanggal_permohonan' => $this->time->now()->toDateString(),
+                'isi_permohonan' => $isi_permohonan,
+                'file_permohonan' => $nama_file,
+                'email' => $user_email
+            ];
+        } else {
+            $data_insert = [
+                'id_jenis_informasi' => $jenis_informasi,
+                'tanggal_permohonan' => $this->time->now()->toDateString(),
+                'isi_permohonan' => $isi_permohonan,
+                'email' => $user_email
+
+            ];
+        }
+
+        if ($this->permohonanModel->insert($data_insert)) {
+            // $email_user = $this->userModel->where('email', session()->get('user_email'))->first()['email'];
+            $email_user = 'okawinza@gmail.com';
+            try {
+                $this->email->setFrom('app.onsdee86@gmail.com', 'E-PPID');
+                $this->email->setTo('onsdee86@gmail.com');
+                $this->email->setCC($email_user);
+                // $this->email->setBCC('them@their-example.com');
+
+                $this->email->setSubject('Upload permohonan informasi oleh ');
+                $this->email->setMessage('Tes EPPID');
+                $this->email->send();
+                $status_email = 'Email berhasil dikirim';
+            } catch (\Exception $e) {
+                $status_email = 'Email gagal dikirim';
+            }
+            session()->setFlashdata('success', 'Data berhasil diinput, ' . $status_email);
+            return redirect()->to(base_url('userpage/v_permohonan'));
+        } else {
+            session()->setFlashdata('fail', 'Data gagal diinput');
+        }
     }
 }

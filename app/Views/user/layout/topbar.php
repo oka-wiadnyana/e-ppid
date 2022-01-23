@@ -5,7 +5,11 @@
             <img src="<?= base_url('img/' . session()->get('profil_logo')); ?>" alt="logo-ma" class="img-fluid logo-topbar"></i><a href="mailto:contact@example.com" class="d-none d-md-block"><?= session()->get('profil_nama'); ?> | <?= session()->get('profil_alamat'); ?></a><a href="mailto:contact@example.com" class="d-block d-sm-none"><?= session()->get('profil_nama_pendek'); ?></a>
         </div>
         <div class="cta">
-            <a href="<?= base_url('userauth'); ?>" class="scrollto">Login</a>
+            <?php if (session()->has('user_login')) : ?>
+                <a href="<?= base_url('userauth/logout'); ?>" class="scrollto">Logout</a>
+            <?php else : ?>
+                <a href="<?= base_url('userauth'); ?>" class="scrollto">Login</a>
+            <?php endif; ?>
         </div>
     </div>
 </div>
