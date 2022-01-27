@@ -9,6 +9,7 @@
             </div>
             <div class="card-body">
                 <form action="<?= base_url('userpage/insert_permohonan'); ?>" method="post" enctype="multipart/form-data">
+                    <?= csrf_field(); ?>
                     <div class="mb-3">
                         <label for="" class="form-label">Jenis Informasi</label>
                         <select class="form-select" name="jenis_informasi">
@@ -38,7 +39,8 @@
                     <input type="hidden" name="user_email" value="<?= session()->get('user_email'); ?>">
 
                     <div>
-                        <button class="btn btn-info" type="submit">Simpan</button>
+                        <button class="btn btn-info text-white" type="submit">Simpan</button>
+                        <a href="<?= base_url('userpage/v_permohonan'); ?>" class="btn btn-warning">Kembali</a>
                     </div>
                 </form>
             </div>

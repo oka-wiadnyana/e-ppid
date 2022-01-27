@@ -10,11 +10,13 @@ class PermohonanModel extends Model
     protected $table            = 'permohonan';
     // protected $useSoftDeletes   = true;
     protected $allowedFields    = [
+        'nomor_register',
         'id_jenis_informasi',
         'tanggal_permohonan',
         'isi_permohonan',
         'file_permohonan',
         'email',
+        'status'
     ];
 
     // Dates
@@ -23,9 +25,9 @@ class PermohonanModel extends Model
     protected $updatedField  = 'updated_at';
     protected $deletedField  = 'deleted_at';
 
-    protected $column_order = array(null, 'jenis_informasi', 'tanggal_permohonan', 'isi_permohonan', 'email');
-    protected $column_search = array('jenis_informasi', 'tanggal_permohonan', 'isi_permohonan');
-    protected $order = array('permohonan_id' => 'asc');
+    protected $column_order = array(null, 'nomor_register', 'jenis_informasi', 'tanggal_permohonan', 'isi_permohonan', 'email', 'jawaban');
+    protected $column_search = array('jenis_informasi', 'tanggal_permohonan', 'isi_permohonan', 'status');
+    protected $order = array('nomor_register' => 'desc', 'nomor_register' => 'desc');
     protected $request;
     protected $db;
     protected $dt;
@@ -37,7 +39,7 @@ class PermohonanModel extends Model
         $this->db = db_connect();
         $this->request = $request;
 
-        $this->dt = $this->db->table($this->table)->select("$this->table.id as permohonan_id,id_jenis_informasi,tanggal_permohonan,isi_permohonan,file_permohonan,email,jenis_informasi")->join('jenis_informasi', "$this->table.id_jenis_informasi=jenis_informasi.id");
+        $this->dt = $this->db->table($this->table)->select("$this->table.id as permohonan_id,id_jenis_informasi,nomor_register,tanggal_permohonan,isi_permohonan,file_permohonan,email,jenis_informasi,status,jawaban")->join('jenis_informasi', "$this->table.id_jenis_informasi=jenis_informasi.id")->join('proses_permohonan', "$this->table.id=proses_permohonan.permohonan_id", 'left');
     }
 
     private function _get_datatables_query()
@@ -81,5 +83,30 @@ class PermohonanModel extends Model
     {
         $tbl_storage = $this->db->table($this->table);
         return $tbl_storage->countAllResults();
+    }
+
+
+    public function max_nomor_register($tanggal_permohonan)
+    {
+        $tahun_permohonan = date('Y', strtotime($tanggal_permohonan));
+        $max_nomor = $this->db->table($this->table)
+            ->selectMax("nomor_register")
+            ->where("YEAR(tanggal_permohonan)", $tahun_permohonan)->get()->getRowArray();
+        $max_nomor = explode('/', $max_nomor['nomor_register']);
+        $max_nomor = (int)$max_nomor[0] + 1;
+        $nomor_register_baru = "$max_nomor/$tahun_permohonan";
+
+
+
+        return $nomor_register_baru;
+    }
+
+    public function find_data($id)
+    {
+        $data = $this->db->table($this->table)
+            ->select("$this->table.id as permohonan_id,id_jenis_informasi,nomor_register,tanggal_permohonan,isi_permohonan,file_permohonan,email,jenis_informasi")
+            ->join('jenis_informasi', "$this->table.id_jenis_informasi=jenis_informasi.id")
+            ->where("$this->table.id", $id)->get()->getRowArray();
+        return $data;
     }
 }

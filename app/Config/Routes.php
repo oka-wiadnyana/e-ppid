@@ -32,6 +32,16 @@ $routes->setAutoRoute(true);
 // We get a performance increase by specifying the default
 // route since we don't have to scan directories.
 $routes->get('/', 'Home::index');
+$routes->get('/', 'Home::index');
+
+$routes->group('userpage', ['filter' => 'userauth'], function ($routes) {
+    $routes->add('v_permohonan', 'Userpage::v_permohonan');
+    $routes->add('v_tambah_permohonan', 'Userpage::v_tambah_permohonan');
+    $routes->add('insert_permohonan', 'Userpage::insert_permohonan');
+    $routes->add('download_file_permohonan', 'Userpage::download_file_permohonan');
+    $routes->add('edit_permohonan', 'Userpage::edit_permohonan');
+    $routes->add('delete_permohonan', 'Userpage::delete_permohonan');
+});
 
 /*
  * --------------------------------------------------------------------

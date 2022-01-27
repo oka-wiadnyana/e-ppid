@@ -21,7 +21,8 @@ class Userpage extends BaseController
     {
         $this->validation = Services::validation();
         $this->email = Services::email();
-        $this->time = new Time();
+        $time = new Time();
+        $this->time = $time->setTimezone('Asia/Manila');
         $this->userModel = new UserauthModel();
         $this->linkModel = new LinkModel();
         $this->profileModel = new ProfileModel();
@@ -200,11 +201,19 @@ class Userpage extends BaseController
                 $no++;
                 $row = [];
                 $row[] = $no;
+                $row[] = $list->nomor_register;
                 $row[] = $list->jenis_informasi;
                 $row[] = $list->tanggal_permohonan;
                 $row[] = $list->isi_permohonan;
-                $row[] = $list->file_permohonan;
-                $row[] = "<a href='' class='btn btn-warning edit_btn' data-id=" . $list->permohonan_id . " style='border-radius:50%'><i class='bx bx-edit-alt'></i></a><a href='' class='btn btn-danger delete_btn' data-id=" . $list->permohonan_id . " data-nama=" . $list->jenis_informasi . " style='border-radius:50%'><i class='bx bx-trash'></i></a>";
+                $row[] = "<a href=" . base_url('userpage/download_file_permohonan/' . $list->file_permohonan) . " target= '_blank'>" . $list->file_permohonan . "</a>";
+                if ($list->status == "Proses verifikasi") {
+
+                    $row[] = "<span class='badge bg-warning'>$list->status</span>";
+                } else if ($list->status == "Sudah ditindaklanjuti") {
+                    $row[] = "<span class='badge bg-success'>$list->status</span>";
+                }
+                $row[] = $list->jawaban;
+                $row[] = "<a href='' class='btn btn-warning edit_btn' data-id=" . $list->permohonan_id . " style='border-radius:50%'><i class='bx bx-edit-alt'></i></a><a href='' class='btn btn-danger delete_btn' data-id=" . $list->permohonan_id . " data-nama=" . $list->nomor_register . " style='border-radius:50%'><i class='bx bx-trash'></i></a>";
                 $data[] = $row;
             }
             $output = [
@@ -236,9 +245,12 @@ class Userpage extends BaseController
         $jenis_informasi = $this->request->getVar('jenis_informasi');
         $isi_permohonan = $this->request->getVar('isi_permohonan');
         $file_permohonan = $this->request->getFile('file_permohonan');
+        $tanggal_permohonan = $this->time->toDateString();
+        $nomor_register = $this->permohonanModel->max_nomor_register($tanggal_permohonan);
         $user_email = $this->request->getVar('user_email');
 
-        // dd($jenis_permohonan, $isi_permohonan, $lampiran_file);
+        // dd($tanggal_permohonan);
+
         if (!$this->validate([
             'jenis_informasi' => [
                 'rules' => 'required',
@@ -263,6 +275,7 @@ class Userpage extends BaseController
             return redirect()->to(base_url('userpage/v_permohonan'));
         }
 
+
         if ($file_permohonan->isValid()) {
             $nama_file = "file-permohonan-" . time();
             $ext = $file_permohonan->getClientExtension();
@@ -271,7 +284,8 @@ class Userpage extends BaseController
 
             $data_insert = [
                 'id_jenis_informasi' => $jenis_informasi,
-                'tanggal_permohonan' => $this->time->now()->toDateString(),
+                'nomor_register' => $nomor_register,
+                'tanggal_permohonan' => $tanggal_permohonan,
                 'isi_permohonan' => $isi_permohonan,
                 'file_permohonan' => $nama_file,
                 'email' => $user_email
@@ -279,7 +293,8 @@ class Userpage extends BaseController
         } else {
             $data_insert = [
                 'id_jenis_informasi' => $jenis_informasi,
-                'tanggal_permohonan' => $this->time->now()->toDateString(),
+                'nomor_register' => $nomor_register,
+                'tanggal_permohonan' => $tanggal_permohonan,
                 'isi_permohonan' => $isi_permohonan,
                 'email' => $user_email
 
@@ -307,5 +322,137 @@ class Userpage extends BaseController
         } else {
             session()->setFlashdata('fail', 'Data gagal diinput');
         }
+    }
+
+    public function download_file_permohonan($file)
+    {
+        $client = Services::curlrequest();
+        $user_file = $client->send('GET', base_url('user_file/' . $file));
+
+        return $user_file;
+    }
+
+    public function modal_edit()
+    {
+        // $data_permohonan = $this->permohonanModel->find_data(4);
+        // dd($data_permohonan);
+        if ($this->request->isAJAX()) {
+            $db = db_connect();
+            $builder = $db->table('jenis_informasi');
+            $data_jenis = $builder->get()->getResultArray();
+            $id = $this->request->getVar('id');
+            $data_permohonan = $this->permohonanModel->find_data($id);
+            $data = [
+                'jenis_informasi' => $data_permohonan['jenis_informasi'],
+                'tanggal_permohonan' => $data_permohonan['tanggal_permohonan'],
+                'isi_permohonan' => $data_permohonan['isi_permohonan'],
+                'file_permohonan' => $data_permohonan['file_permohonan'],
+                'id' => $id,
+                'list_jenis_informasi' => $data_jenis
+            ];
+
+            echo json_encode([view('user/modal/modal_edit', $data)]);
+        } else {
+            echo 'Forbidden';
+        }
+    }
+
+
+    public function edit_permohonan()
+    {
+        $jenis_informasi = $this->request->getVar('jenis_informasi');
+        $isi_permohonan = $this->request->getVar('isi_permohonan');
+        $file_permohonan = $this->request->getFile('file_permohonan');
+        $file_lama = $this->request->getVar('file_lama');
+        $id = $this->request->getVar('id');
+        // $user_email = $this->request->getVar('user_email');
+
+
+        // dd($jenis_permohonan, $isi_permohonan, $lampiran_file);
+        if (!$this->validate([
+            'jenis_informasi' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Jenis permohonan harus diisi'
+                ]
+            ],
+            'isi_permohonan' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Isi permohonan harus diisi'
+                ]
+            ],
+            'file_permohonan' => [
+                'rules' => 'ext_in[file_permohonan,pdf]',
+                'errors' => [
+                    'ext_in' => 'File permohonan salah'
+                ]
+            ]
+        ])) {
+            session()->setFlashdata('fail', $this->validation->getErrors());
+            return redirect()->to(base_url('userpage/v_permohonan'));
+        }
+
+        if ($file_permohonan->isValid()) {
+            $nama_file = "file-permohonan-" . time();
+            $ext = $file_permohonan->getClientExtension();
+            $nama_file = $nama_file . '.' . $ext;
+            $file_permohonan->move('user_file', $nama_file);
+            if (!empty($file_lama)) {
+
+                unlink(ROOTPATH . 'public/user_file/' . $file_lama);
+            }
+
+            $data_update = [
+                'id_jenis_informasi' => $jenis_informasi,
+                'tanggal_permohonan' => $this->time->now()->toDateString(),
+                'isi_permohonan' => $isi_permohonan,
+                'file_permohonan' => $nama_file,
+                // 'email' => $user_email
+            ];
+        } else {
+            $data_update = [
+                'id_jenis_informasi' => $jenis_informasi,
+                'tanggal_permohonan' => $this->time->now()->toDateString(),
+                'isi_permohonan' => $isi_permohonan,
+                'file_permohonan' => $file_lama,
+                // 'email' => $user_email
+
+            ];
+        }
+
+        if ($this->permohonanModel->update($id, $data_update)) {
+            // $email_user = $this->userModel->where('email', session()->get('user_email'))->first()['email'];
+            $email_user = 'okawinza@gmail.com';
+            try {
+                $this->email->setFrom('app.onsdee86@gmail.com', 'E-PPID');
+                $this->email->setTo('onsdee86@gmail.com');
+                $this->email->setCC($email_user);
+                // $this->email->setBCC('them@their-example.com');
+
+                $this->email->setSubject('Upload permohonan informasi oleh ');
+                $this->email->setMessage('Update EPPID');
+                $this->email->send();
+                $status_email = 'Email berhasil dikirim';
+            } catch (\Exception $e) {
+                $status_email = 'Email gagal dikirim';
+            }
+            session()->setFlashdata('success', 'Data berhasil diubah, ' . $status_email);
+            return redirect()->to(base_url('userpage/v_permohonan'));
+        } else {
+            session()->setFlashdata('fail', 'Data gagal diinput');
+        }
+    }
+
+    public function delete_permohonan()
+    {
+        $id = $this->request->getVar('id');
+
+        if ($this->permohonanModel->delete($id)) {
+            session()->setFlashdata('success', 'Data berhasil dihapus');
+        } else {
+            session()->setFlashdata('fail', 'Data gagal dihapus');
+        }
+        echo json_encode(['redirect' => true]);
     }
 }

@@ -20,6 +20,11 @@ class PermohonanInformasi extends Migration
                 'constraint'     => 5,
                 'unsigned'       => true,
             ],
+            'nomor_register'       => [
+                'type'       => 'VARCHAR',
+                'constraint' => 100,
+                'null' => true,
+            ],
             'tanggal_permohonan'       => [
                 'type'       => 'DATE',
                 'null' => true,
@@ -37,6 +42,11 @@ class PermohonanInformasi extends Migration
                 'type'       => 'VARCHAR',
                 'constraint' => 250,
                 'null' => true,
+            ],
+            'status'       => [
+                'type'       => 'VARCHAR',
+                'constraint' => 250,
+                'default' => 'Proses verifikasi',
             ],
             'created_at TIMESTAMP',
             'updated_at TIMESTAMP',
