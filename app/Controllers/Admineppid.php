@@ -11,6 +11,18 @@ use App\Models\Level2ModelDt;
 use App\Models\Level3ModelDt;
 use App\Models\ProfilPpidModel;
 use App\Models\ProfileModel;
+use App\Models\PermohonanModelAdmin;
+use App\Models\KeberatanModelAdmin;
+use App\Models\PeraturanModel;
+use App\Models\StandarModel;
+use App\Models\StatistikModel;
+use App\Models\LaporanModel;
+use App\Models\PrasyaratModel;
+use App\Models\LinkterkaitModel;
+use App\Models\LayananelektronikModel;
+use App\Models\AdminauthModel;
+use App\Models\UserauthModelDT;
+use CodeIgniter\I18n\Time;
 
 class Admineppid extends BaseController
 {
@@ -24,7 +36,78 @@ class Admineppid extends BaseController
         $this->level3Model = new Level3ModelDt();
         $this->profilPpidModel = new ProfilPpidModel();
         $this->profilSatkerModel = new ProfileModel();
+        $this->permohonanModel = new PermohonanModelAdmin();
+        $this->keberatanModel = new KeberatanModelAdmin();
+        $this->peraturanModel = new PeraturanModel();
+        $this->standarModel = new StandarModel();
+        $this->statistikModel = new StatistikModel();
+        $this->laporanModel = new LaporanModel();
+        $this->prasyaratModel = new PrasyaratModel();
+        $this->linkterkaitModel = new LinkterkaitModel();
+        $this->layananelektronikModel = new LayananelektronikModel();
+        $this->adminauthModel = new AdminauthModel();
+        $this->userauthModel = new UserauthModelDT();
         $this->validation = Services::validation();
+        $this->email = Services::email();
+    }
+
+    public function index()
+    {
+        $db = db_connect();
+        $total = $db->table('permohonan')->countAll();
+        $diproses = $db->table('permohonan')
+            ->join('proses_permohonan', 'permohonan.id=proses_permohonan.permohonan_id', 'left')
+            ->where('proses !=', null)
+            ->countAllResults();
+        $belum_proses = $db->table('permohonan')
+            ->join('proses_permohonan', 'permohonan.id=proses_permohonan.permohonan_id', 'left')
+            ->where('proses', null)
+            ->countAllResults();
+
+        $diterima = $db->table('proses_permohonan')->where('proses', 'Y')->countAllResults();
+        $ditolak = $db->table('proses_permohonan')->where('proses', 'T')->countAllResults();
+        $keberatan = $db->table('keberatan')->countAllResults();
+        $keberatan_proses = $db->table('keberatan')
+            ->join('proses_keberatan', 'keberatan.id=proses_keberatan.keberatan_id', 'left')
+            ->where('tanggapan !=', null)
+            ->countAllResults();
+        $keberatan_belum_proses = $db->table('keberatan')
+            ->join('proses_keberatan', 'keberatan.id=proses_keberatan.keberatan_id', 'left')
+            ->where('tanggapan', null)
+            ->countAllResults();
+
+
+        $data = [
+            'total' => $total,
+            'diproses' => $diproses,
+            'belum_proses' => $belum_proses,
+            'diterima' => $diterima,
+            'ditolak' => $ditolak,
+            'keberatan' => $keberatan,
+            'keberatan_proses' => $keberatan_proses,
+            'keberatan_belum_proses' => $keberatan_belum_proses,
+        ];
+
+        return view('admin/dashboard', $data);
+    }
+
+    public function api_permohonan()
+    {
+        if ($this->request->isAJAX()) {
+
+            $db = db_connect();
+            // $time = new Time();
+            $tahun = $this->request->getVar('tahun');
+            $permohonan_perbulan = [];
+
+            for ($i = 1; $i <= 12; $i++) {
+                $permohonan_perbulan[] = $db->table('permohonan')->where('MONTH(tanggal_permohonan)', $i)
+                    ->where('YEAR(tanggal_permohonan)', $tahun)
+                    ->countAllResults();
+            }
+
+            return $this->response->setJSON($permohonan_perbulan);
+        }
     }
     public function list_informasi()
     {
@@ -1186,5 +1269,1820 @@ class Admineppid extends BaseController
             session()->setFlashdata('success', 'Data berhasil ditambah');
             return redirect()->to(base_url('admineppid/v_profil_satker'));
         }
+    }
+
+    public function daftar_permohonan()
+    {
+
+        $data = [
+            'title' => 'Admin | Permohonan Masuk',
+        ];
+
+        return view('admin/permohonan-masuk', $data);
+    }
+
+    public function data_permohonan_datatable()
+    {
+        $request = Services::request();
+        $datamodel = new PermohonanModelAdmin($request);
+        if ($request->getMethod(true) == 'POST') {
+            $lists = $datamodel->get_datatables();
+            $data = [];
+            $no = $request->getPost("start");
+            foreach ($lists as $list) {
+
+                if ($list->jawaban != null) {
+
+                    $disabled = 'disabled';
+                } else {
+                    $disabled = '';
+                };
+                $no++;
+                $row = [];
+                $row[] = $no;
+                $row[] = $list->nomor_register;
+                $row[] = $list->jenis_informasi;
+                $row[] = $list->tanggal_permohonan;
+                $row[] = $list->isi_permohonan;
+                $row[] = $list->nama;
+                $row[] = $list->user_email;
+                $row[] = "<a href=" . base_url('userpage/download_file_permohonan/' . $list->file_permohonan) . " target= '_blank'>" . $list->file_permohonan . "</a>";
+                if ($list->status == "Proses verifikasi") {
+
+                    $row[] = "<span class='badge bg-warning'>$list->status</span>";
+                } else if ($list->status == "Sudah ditindaklanjuti") {
+                    $row[] = "<span class='badge bg-success'>$list->status</span>";
+                } else if ($list->status == "Pengajuan keberatan") {
+                    $row[] = "<span class='badge bg-danger'>$list->status</span>";
+                } else if ($list->status == "Permohonan ditolak") {
+                    $row[] = "<span class='badge bg-secondary'>$list->status</span>";
+                }
+                $row[] = $list->jawaban;
+                $row[] = "<a href='' class='btn btn-warning reject_btn " . $disabled . "' data-id=" . $list->permohonan_id . " style='border-radius:50%' data-toggle='tooltip' data-placement='bottom' title='Tolak'><i class='fas fa-eject'></i></a><a href='' class='btn btn-info accept_btn " . $disabled . "' data-id=" . $list->permohonan_id . " data-register=" . $list->nomor_register . " style='border-radius:50%' data-toggle='tooltip' data-placement='bottom' title='Proses'><i class='fas fa-check-square'></i></a><a href='' class='btn btn-danger delete_btn' data-id=" . $list->permohonan_id . " data-nama=" . $list->nomor_register . " data-email=" . $list->user_email . " style='border-radius:50%'><i class='fas fa-trash-alt' data-toggle='tooltip' data-placement='bottom' title='Hapus'></i></a>";
+                $data[] = $row;
+            }
+            $output = [
+                "draw" => $request->getPost('draw'),
+                "recordsTotal" => $datamodel->count_all(),
+                "recordsFiltered" => $datamodel->count_filtered(),
+                "data" => $data
+            ];
+            echo json_encode($output);
+        }
+    }
+
+    public function modal_proses_permohonan()
+    {
+        $id = $this->request->getVar('id');
+        $data_proses = $this->permohonanModel->find_data_proses($id);
+        $email = $this->request->getVar('email');
+
+        if (count($data_proses) > 0) {
+            $data = [
+                'title' => 'Admin | Proses Permohonan',
+                'id' => $id,
+                'data_proses' => $data_proses[0],
+                'nomor_register' => $this->request->getVar('nomor_register'),
+                'email' => $email
+            ];
+        } else {
+            $data = [
+                'title' => 'Admin | Proses Permohonan',
+                'id' => $id,
+                'nomor_register' => $this->request->getVar('nomor_register'),
+                'email' => $email
+            ];
+        }
+
+        return $this->response->setJSON([view('admin/modal/modalprosespermohonan', $data)]);
+    }
+
+    public function proses_permohonan()
+    {
+        $jawaban = $this->request->getVar('jawaban');
+        $status = $this->request->getVar('status');
+        $id = $this->request->getVar('id');
+        $user_email = $this->request->getVar('email');
+        $nomor_register = $this->request->getVar('nomor_register');
+        $nomor_register = explode('/', $nomor_register);
+        $nomor_register = implode('_', $nomor_register);
+        $hapus_file = $this->request->getVar('hapus_file');
+        $lampiran = $this->request->getFile('lampiran');
+
+
+        if (!$this->validate([
+            'jawaban' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Jawaban harus diisi'
+                ]
+            ],
+            'lampiran' => [
+                'rules' => 'ext_in[lampiran,pdf]',
+                'errors' => [
+                    'ext_in' => 'File permohonan salah'
+                ]
+            ]
+        ])) {
+
+            session()->setFlashdata('fail', $this->validation->getErrors());
+            return redirect()->to('admineppid/daftar_permohonan');
+        }
+
+        if ($lampiran->isValid()) {
+            $nama_lampiran = 'lampiran_jawaban_' . $nomor_register;
+            $ext = $lampiran->getClientExtension();
+            $nama_lampiran = $nama_lampiran . '.' . $ext;
+            $nama_lampiran_base64 = base64_encode($nama_lampiran);
+            if (file_exists(ROOTPATH . 'public/admin_file/' . $nama_lampiran)) {
+                unlink(ROOTPATH . 'public/admin_file/' . $nama_lampiran);
+                if ($hapus_file == 'T') {
+                    $data_jawaban =  $jawaban . "#untuk lampirannya dapat didownload <a class='badge bg-info' href='" . base_url('admineppid/download_file_jawaban/' . $nama_lampiran_base64) . "' target='_blank'>disini</a>";
+                } else {
+                    $data_jawaban = $jawaban;
+                }
+            } else {
+                $data_jawaban =  $jawaban . "#untuk lampirannya dapat didownload <a class='badge bg-info' href='" . base_url('admineppid/download_file_jawaban/' . $nama_lampiran_base64) . "' target='_blank'>disini</a>";
+            }
+            $lampiran->move('admin_file', $nama_lampiran);
+
+
+            $data = [
+                'proses' => 'Y',
+                'status_jawaban' => $status,
+                'jawaban' => $data_jawaban,
+                'lampiran_jawaban' => $nama_lampiran
+            ];
+        } else if (!$lampiran->isValid() && $hapus_file == 'Y') {
+            $data_jawaban = explode('#', $jawaban);
+            $data_jawaban = $data_jawaban[0];
+            // dd($data_jawaban);
+            $data = [
+                'proses' => 'Y',
+                'status_jawaban' => $status,
+                'jawaban' => $data_jawaban,
+                // 'lampiran_jawaban' == '',
+            ];
+        } else {
+            $data = [
+                'proses' => 'Y',
+                'status_jawaban' => $status,
+                'jawaban' => $jawaban,
+            ];
+        }
+
+        if ($this->permohonanModel->update_proses($id, $data)) {
+
+            $data_permohonan = $this->permohonanModel->find_data($id);
+            $email_admin = $this->profilSatkerModel->first()['email'];
+            try {
+                $this->email->setFrom('app.onsdee86@gmail.com', 'E-PPID');
+                $this->email->setTo($email_admin);
+                $this->email->setCC($data_permohonan['user_email']);
+                // $this->email->setBCC('them@their-example.com');
+
+                $this->email->setSubject("Jawaban atas permohonan informasi nomor : {$data_permohonan['nomor_register']}");
+                $this->email->setMessage("Halo {$data_permohonan['nama']}, permohonan Saudara/i dengan nomor register {$data_permohonan['nomor_register']} telah dijawab dengan jawaban sebagai berikut : {$data_permohonan['jawaban']}");
+                $this->email->send();
+                $status_email = 'Email berhasil dikirim';
+            } catch (\Exception $e) {
+                $status_email = 'Email gagal dikirim';
+            }
+
+            session()->setFlashdata('success', 'Jawaban berhasil diinput, ' . $status_email);
+            return redirect()->to('admineppid/daftar_permohonan');
+        } else {
+            session()->setFlashdata('fail', ['Jawaban gagal diinput']);
+            return redirect()->to('admineppid/daftar_permohonan');
+        }
+    }
+
+    public function modal_tolak_permohonan()
+    {
+        $id = $this->request->getVar('id');
+        $data_proses = $this->permohonanModel->find_data_tolak($id);
+        $email = $this->request->getVar('email');
+
+        if (count($data_proses) > 0) {
+            $data = [
+
+                'id' => $id,
+                'data_proses' => $data_proses[0],
+                'nomor_register' => $this->request->getVar('nomor_register'),
+                'email' => $email
+            ];
+        } else {
+            $data = [
+
+                'id' => $id,
+                'nomor_register' => $this->request->getVar('nomor_register'),
+                'email' => $email
+            ];
+        }
+
+        return $this->response->setJSON([view('admin/modal/modaltolakpermohonan', $data)]);
+    }
+
+    public function tolak_permohonan()
+    {
+        $jawaban = $this->request->getVar('jawaban');
+
+        $id = $this->request->getVar('id');
+        $user_email = $this->request->getVar('email');
+
+        if (!$this->validate([
+            'jawaban' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Jawaban harus diisi'
+                ]
+            ]
+        ])) {
+
+            session()->setFlashdata('fail', $this->validation->getErrors());
+            return redirect()->to('admineppid/daftar_permohonan');
+        }
+
+        $data = [
+            'proses' => 'T',
+            'jawaban' => $jawaban,
+        ];
+
+        if ($this->permohonanModel->update_proses($id, $data)) {
+
+            $data_permohonan = $this->permohonanModel->find_data($id);
+            $email_admin = $this->profilSatkerModel->first()['email'];
+            try {
+                $this->email->setFrom('app.onsdee86@gmail.com', 'E-PPID');
+                $this->email->setTo($email_admin);
+                $this->email->setCC($data_permohonan['user_email']);
+                // $this->email->setBCC('them@their-example.com');
+
+                $this->email->setSubject("Penolakan permohonan informasi nomor : {$data_permohonan['nomor_register']}");
+                $this->email->setMessage("Halo {$data_permohonan['nama']}, permohonan Saudara/i dengan nomor register {$data_permohonan['nomor_register']} ditolak oleh karena : {$data_permohonan['jawaban']}");
+                $this->email->send();
+                $status_email = 'Email berhasil dikirim';
+            } catch (\Exception $e) {
+                $status_email = 'Email gagal dikirim';
+            }
+
+            session()->setFlashdata('success', 'Jawaban berhasil diinput, ' . $status_email);
+            return redirect()->to('admineppid/daftar_permohonan');
+        } else {
+            session()->setFlashdata('fail', ['Jawaban gagal diinput']);
+            return redirect()->to('admineppid/daftar_permohonan');
+        }
+    }
+
+
+    public function download_file_jawaban($base64_code)
+    {
+
+        $nama_file = base64_decode($base64_code);
+
+        $client = Services::curlrequest();
+        $file_jawaban = $client->send('GET', base_url('admin_file/' . $nama_file));
+
+        return $file_jawaban;
+    }
+
+    public function delete_permohonan()
+    {
+        $id = $this->request->getVar('id');
+        if ($this->permohonanModel->delete($id)) {
+            session()->setFlashdata('success', 'Permohonan berhasil dihapus');
+            return $this->response->setJSON(['success' => true]);
+        } else {
+            session()->setFlashdata('fail', 'Permohonan gagal dihapus');
+            return $this->response->setJSON(['success' => false]);
+        }
+    }
+
+    public function daftar_keberatan()
+    {
+
+        $data = [
+            'title' => 'Admin | Daftar Keberatan',
+        ];
+
+        return view('admin/daftar-keberatan', $data);
+    }
+
+    public function data_keberatan_datatable()
+    {
+        $request = Services::request();
+        $datamodel = new KeberatanModelAdmin($request);
+        if ($request->getMethod(true) == 'POST') {
+            $lists = $datamodel->get_datatables();
+            $data = [];
+            $no = $request->getPost("start");
+            foreach ($lists as $list) {
+
+                if ($list->tanggapan != null) {
+
+                    $disabled = 'disabled';
+                } else {
+                    $disabled = '';
+                };
+                $no++;
+                $row = [];
+                $row[] = $no;
+                $row[] = $list->nomor_register;
+                $row[] = $list->tanggal_keberatan;
+                $row[] = $list->nama;
+                $row[] = $list->email;
+                $row[] = $list->jawaban;
+                $row[] = $list->jenis_keberatan;
+                $row[] = $list->isi_keberatan;
+                $row[] = $list->tanggapan;
+                if ($list->status == "Proses verifikasi") {
+
+                    $row[] = "<span class='badge bg-warning'>$list->status</span>";
+                } else if ($list->status == "Sudah ditindaklanjuti") {
+                    $row[] = "<span class='badge bg-success'>$list->status</span>";
+                } else if ($list->status == "Pengajuan keberatan") {
+                    $row[] = "<span class='badge bg-danger'>$list->status</span>";
+                } else if ($list->status == "Permohonan ditolak") {
+                    $row[] = "<span class='badge bg-secondary'>$list->status</span>";
+                }
+                $row[] = "<a href='' class='btn btn-info accept_btn " . $disabled . "' data-id=" . $list->keberatan_id . " data-register=" . $list->nomor_register . " style='border-radius:50%' data-toggle='tooltip' data-placement='bottom' title='Proses'><i class='fas fa-check-square'></i></a><a href='' class='btn btn-danger delete_btn' data-id=" . $list->permohonan_id . " data-nama=" . $list->nomor_register . " data-email=" . $list->email . " style='border-radius:50%'><i class='fas fa-trash-alt' data-toggle='tooltip' data-placement='bottom' title='Hapus'></i></a>";
+                $data[] = $row;
+            }
+            $output = [
+                "draw" => $request->getPost('draw'),
+                "recordsTotal" => $datamodel->count_all(),
+                "recordsFiltered" => $datamodel->count_filtered(),
+                "data" => $data
+            ];
+            echo json_encode($output);
+        }
+    }
+
+    public function modal_proses_keberatan()
+    {
+        $id = $this->request->getVar('id');
+        $data_proses = $this->keberatanModel->find_keberatan($id);
+        $email = $this->request->getVar('email');
+
+        if ($data_proses) {
+            $data = [
+                'title' => 'Admin | Proses Keberatan',
+                'id' => $data_proses['keberatan_id'],
+                'data_proses' => $data_proses,
+                'nomor_register' => $this->request->getVar('nomor_register'),
+                'email' => $email
+            ];
+        } else {
+            $data = [
+                'title' => 'Admin | Proses Keberatan',
+                'id' => $data_proses['keberatan_id'],
+                'nomor_register' => $this->request->getVar('nomor_register'),
+                'email' => $email
+            ];
+        }
+
+        return $this->response->setJSON([view('admin/modal/modalproseskeberatan', $data)]);
+    }
+
+    public function proses_keberatan()
+    {
+
+        $tanggapan = $this->request->getVar('tanggapan');
+        $id = $this->request->getVar('id');
+        // $data_keberatan = $this->keberatanModel->find_data($id);
+        // dd($data_keberatan);
+
+        if (!$this->validate([
+            'tanggapan' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Jawaban harus diisi'
+                ]
+            ]
+        ])) {
+
+            session()->setFlashdata('fail', $this->validation->getErrors());
+            return redirect()->to('admineppid/daftar_keberatan');
+        }
+
+        $data = [
+            'tanggapan' => $tanggapan,
+            'keberatan_id' => $id,
+        ];
+        if ($this->keberatanModel->proses_keberatan($id, $data)) {
+
+            $data_keberatan = $this->keberatanModel->find_data($id, $data);
+            $email_admin = $this->profilSatkerModel->first()['email'];
+            try {
+                $this->email->setFrom('app.onsdee86@gmail.com', 'E-PPID');
+                $this->email->setTo($email_admin);
+                $this->email->setCC($data_keberatan['user_email']);
+                // $this->email->setBCC('them@their-example.com');
+
+                $this->email->setSubject("Tanggapan atas keberatan permohonan informasi nomor : {$data_keberatan['nomor_register']}");
+                // $this->email->setMessage("Halo {$data_keberatan['nama']}, keberatan permohonan Saudara/i dengan nomor register permohonan informasi {$data_keberatan['nomor_register']} telah ditanggapi dengan tanggapan sebagai berikut : {$data_keberatan['tanggapan']}");
+                $this->email->setMessage("Halo {$data_keberatan['nama']}, , keberatan permohonan Saudara/i dengan nomor register permohonan informasi {$data_keberatan['nomor_register']} telah ditanggapi dengan tanggapan sebagai berikut : {$data_keberatan['tanggapan']}");
+                $this->email->send();
+                $status_email = 'Email berhasil dikirim';
+            } catch (\Exception $e) {
+                $status_email = 'Email gagal dikirim';
+            }
+
+            session()->setFlashdata('success', 'Tanggapan berhasil diinput, ' . $status_email);
+            return redirect()->to('admineppid/daftar_keberatan');
+        } else {
+            session()->setFlashdata('fail', ['Tanggapan gagal diinput']);
+            return redirect()->to('admineppid/daftar_keberatan');
+        }
+    }
+
+    public function count_permohonan_baru()
+    {
+        // this is sse server setting
+
+
+        // if in hosting, use this setting
+        // $this->response->setContentType('text/event-stream');
+        // $this->response->setHeader('Cache-Control', 'no-cache');
+
+
+        header('Content-Type: text/event-stream');
+        header('Cache-Control: no-cache');
+
+
+        $db = db_connect();
+        $builder = $db->table('permohonan');
+        $data_baru = $builder->where('jawaban', null)->join('proses_permohonan', 'permohonan.id=proses_permohonan.permohonan_id', 'left')->countAllResults();
+
+        echo "data: {$data_baru}\n\n";
+        // ob_end_flush();
+        flush();
+    }
+
+    public function count_keberatan_baru()
+    {
+        // this is sse server setting
+
+        // if in hosting, use this setting
+        // $this->response->setContentType('text/event-stream');
+        // $this->response->setHeader('Cache-Control', 'no-cache');
+
+
+        header('Content-Type: text/event-stream');
+        header('Cache-Control: no-cache');
+
+
+        $db = db_connect();
+        $builder = $db->table('keberatan');
+        $data_baru = $builder->where('tanggapan', null)->join('proses_keberatan', 'keberatan.id=proses_keberatan.keberatan_id', 'left')->countAllResults();
+
+        echo "data: {$data_baru}\n\n";
+        // ob_end_flush();
+        flush();
+    }
+
+    public function v_peraturan()
+    {
+
+        $data = [
+            'title' => 'Admin | Daftar Peraturan',
+        ];
+
+        return view('admin/v_peraturan', $data);
+    }
+
+    public function data_peraturan_datatable()
+    {
+        $request = Services::request();
+        $datamodel = new PeraturanModel($request);
+        if ($request->getMethod(true) == 'POST') {
+            $lists = $datamodel->get_datatables();
+            $data = [];
+            $no = $request->getPost("start");
+            foreach ($lists as $list) {
+
+                $no++;
+                $row = [];
+                $row[] = $no;
+                $row[] = $list->nomor_peraturan;
+                $row[] = $list->tentang;
+
+                $row[] = "<a href='' class='btn btn-info edit_btn' data-id=" . $list->id . " style='border-radius:50%' data-toggle='tooltip' data-placement='bottom' title='Edit'><i class='fas fa-check-square'></i></a><a href='' class='btn btn-danger delete_btn' data-id=" . $list->id . " data-nama=" . $list->nomor_peraturan . " style='border-radius:50%' data-toggle='tooltip' data-placement='bottom' title='Hapus'><i class='fas fa-trash-alt'></i></a>";
+                $data[] = $row;
+            }
+            $output = [
+                "draw" => $request->getPost('draw'),
+                "recordsTotal" => $datamodel->count_all(),
+                "recordsFiltered" => $datamodel->count_filtered(),
+                "data" => $data
+            ];
+            echo json_encode($output);
+        }
+    }
+
+    public function tambah_peraturan()
+    {
+        $data = [
+            'title' => 'Admin | Tambah peraturan'
+        ];
+
+        return view('admin/tambah_peraturan');
+    }
+
+    public function insert_peraturan()
+    {
+        $nomor = $this->request->getVar('nomor');
+        $tentang = $this->request->getVar('tentang');
+
+        if (!$this->validate([
+            'nomor' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Nomor peraturan harus diisi'
+                ]
+            ],
+            'tentang' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Hal peraturan harus diisi'
+                ]
+            ]
+        ])) {
+            session()->setFlashdata('fail', $this->validation->getErrors());
+            return $this->response->setJSON(['msg' => 'fail']);
+        }
+
+        $jumlah_input = count($nomor);
+        for ($i = 0; $i < $jumlah_input; $i++) {
+            $data = [
+                'nomor_peraturan' => $nomor[$i],
+                'tentang' => $tentang[$i]
+            ];
+
+            $this->peraturanModel->insert($data);
+        }
+
+        session()->setFlashdata('success', "{$jumlah_input} data berhasil diinput");
+        return $this->response->setJSON(['msg' => 'success']);
+    }
+
+    public function delete_peraturan()
+    {
+
+        $id = $this->request->getVar('id');
+        $this->peraturanModel->delete($id);
+        session()->setFlashdata('success', 'Peraturan berhasil dihapus');
+        return $this->response->setJSON(['msg' => 'success']);
+    }
+
+    public function modal_edit_peraturan()
+    {
+        $id = $this->request->getVar('id');
+
+        $db = db_connect();
+        $builder = $db->table('peraturan');
+        $data_peraturan = $builder->where('id', $id)->get()->getRowArray();
+
+        $data = [
+            'data_peraturan' => $data_peraturan
+        ];
+
+        return $this->response->setJSON([view('admin/modal/editperaturan', $data)]);
+    }
+
+    public function edit_peraturan()
+    {
+        $nomor_peraturan = $this->request->getVar('nomor_peraturan');
+        $tentang = $this->request->getVar('tentang');
+        $id = $this->request->getVar('id');
+
+        if (!$this->validate([
+            'nomor_peraturan' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Nomor peraturan harus diisi'
+                ]
+            ],
+            'tentang' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Hal peraturan harus diisi'
+                ]
+            ]
+        ])) {
+            session()->setFlashdata('fail', $this->validation->getErrors());
+            return redirect()->to('admineppid/daftar_peraturan');
+        }
+
+        $data = [
+            'nomor_peraturan' => $nomor_peraturan,
+            'tentang' => $tentang
+        ];
+        $db = db_connect();
+        $builder = $db->table('peraturan');
+        $builder->where('id', $id)->update($data);
+
+        session()->setFlashdata('success', 'Data berhasil diubah');
+        return redirect()->to('admineppid/v_peraturan');
+    }
+
+    public function v_standar_layanan()
+    {
+
+        $db = db_connect();
+        $builder = $db->table('standar_layanan');
+        $data_standar = $builder->get()->getRowArray();
+
+        $data = [
+            'title' => 'Admin | Daftar Peraturan',
+            'data_standar' => $data_standar
+        ];
+
+        return view('admin/v_standar_layanan', $data);
+    }
+
+    public function data_standar_datatable()
+    {
+        $request = Services::request();
+        $datamodel = new StandarModel($request);
+        if ($request->getMethod(true) == 'POST') {
+            $lists = $datamodel->get_datatables();
+            $data = [];
+            $no = $request->getPost("start");
+            foreach ($lists as $list) {
+
+                $no++;
+                $row = [];
+                $row[] = $no;
+                $row[] = "<img class ='img-fluid' src=" . base_url('admin_file/standar_layanan/' . $list->maklumat) . ">";
+                $row[] = "<img class ='img-fluid' src=" . base_url('admin_file/standar_layanan/' . $list->prosedur) . ">";
+                $row[] = "<img class ='img-fluid' src=" . base_url('admin_file/standar_layanan/' . $list->keberatan) . ">";
+                $row[] = "<img class ='img-fluid' src=" . base_url('admin_file/standar_layanan/' . $list->sengketa) . ">";
+                $row[] = "<img class ='img-fluid' src=" . base_url('admin_file/standar_layanan/' . $list->jalur) . ">";
+                $row[] = "<img class ='img-fluid' src=" . base_url('admin_file/standar_layanan/' . $list->biaya) . ">";
+
+                $row[] = "<a href='' class='btn btn-info edit_btn' data-id=" . $list->id . " style='border-radius:50%' data-toggle='tooltip' data-placement='bottom' title='Edit'><i class='fas fa-check-square'></i></a><a href='' class='btn btn-danger delete_btn' data-id=" . $list->id . " style='border-radius:50%'><i class='fas fa-trash-alt' data-toggle='tooltip' data-placement='bottom' title='Hapus'></i></a>";
+                $data[] = $row;
+            }
+            $output = [
+                "draw" => $request->getPost('draw'),
+                "recordsTotal" => $datamodel->count_all(),
+                "recordsFiltered" => $datamodel->count_filtered(),
+                "data" => $data
+            ];
+            echo json_encode($output);
+        }
+    }
+
+    public function tambah_standar_layanan()
+    {
+        $data = [
+            'title' => 'Admin | Tambah standar layanan'
+        ];
+
+        return view('admin/tambah_standar_layanan');
+    }
+
+    public function insert_standar_layanan()
+    {
+
+        $maklumat = $this->request->getFile('maklumat');
+        $prosedur = $this->request->getFile('prosedur');
+        $keberatan = $this->request->getFile('keberatan');
+        $sengketa = $this->request->getFile('sengketa');
+        $jalur = $this->request->getFile('jalur');
+        $biaya = $this->request->getFile('biaya');
+
+        // dd($maklumat);
+
+        $data_validasi = [
+            'maklumat' => $maklumat,
+            'prosedur' => $prosedur,
+            'keberatan' => $keberatan,
+            'sengketa' => $sengketa,
+            'jalur' => $jalur,
+            'biaya' => $biaya,
+        ];
+
+
+        $this->validation->setRules([
+            'maklumat' => [
+                'rules' => 'uploaded[maklumat]|ext_in[maklumat,jpg,png]',
+                'errors' => [
+                    'uploaded' => 'Maklumat harus diisi',
+                    'ext_in' => 'File harus jpg atau png'
+                ]
+            ],
+            'prosedur' => [
+                'rules' => 'uploaded[prosedur]|ext_in[prosedur,jpg,png]',
+                'errors' => [
+                    'uploaded' => 'Prosedur harus diisi',
+                    'ext_in' => 'File harus jpg atau png'
+                ]
+            ],
+            'keberatan' => [
+                'rules' => 'uploaded[keberatan]|ext_in[keberatan,jpg,png]',
+                'errors' => [
+                    'uploaded' => 'Keberatan harus diisi',
+                    'ext_in' => 'File harus jpg atau png'
+                ]
+            ],
+            'sengketa' => [
+                'rules' => 'uploaded[sengketa]|ext_in[sengketa,jpg,png]',
+                'errors' => [
+                    'uploaded' => 'Sengketa harus diisi',
+                    'ext_in' => 'File harus jpg atau png'
+                ]
+            ],
+            'jalur' => [
+                'rules' => 'uploaded[jalur]|ext_in[jalur,jpg,png]',
+                'errors' => [
+                    'uploaded' => 'Jalur harus diisi',
+                    'ext_in' => 'File harus jpg atau png'
+                ]
+            ],
+            'biaya' => [
+                'rules' => 'uploaded[biaya]|ext_in[biaya,jpg,png]',
+                'errors' => [
+                    'uploaded' => 'Biaya harus diisi',
+                    'ext_in' => 'File harus jpg atau png'
+                ]
+            ]
+        ]);
+
+        if (!$this->validation->run($data_validasi)) {
+
+            session()->setFlashdata('fail', $this->validation->getErrors());
+            return redirect()->to(base_url('admineppid/v_standar_layanan'));
+        }
+
+        $nama_maklumat = 'maklumat-' . time() . '.' . $maklumat->getClientExtension();
+        if (file_exists(ROOTPATH . 'public/admin_file/standar_layanan/' . $nama_maklumat)) {
+            unlink(ROOTPATH . 'public/admin_file/standar_layanan/' . $nama_maklumat);
+        }
+        $maklumat->move('admin_file/standar_layanan', $nama_maklumat);
+
+        $nama_prosedur = 'prosedur-' . time() . '.' . $prosedur->getClientExtension();
+        if (file_exists(ROOTPATH . 'public/admin_file/standar_layanan/' . $nama_prosedur)) {
+            unlink(ROOTPATH . 'public/admin_file/standar_layanan/' . $nama_prosedur);
+        }
+        $prosedur->move('admin_file/standar_layanan', $nama_prosedur);
+
+        $nama_keberatan = 'keberatan-' . time() . '.' . $keberatan->getClientExtension();
+        if (file_exists(ROOTPATH . 'public/admin_file/standar_layanan/' . $nama_keberatan)) {
+            unlink(ROOTPATH . 'public/admin_file/standar_layanan/' . $nama_keberatan);
+        }
+        $keberatan->move('admin_file/standar_layanan', $nama_keberatan);
+
+        $nama_sengketa = 'sengketa-' . time() . '.' . $sengketa->getClientExtension();
+        if (file_exists(ROOTPATH . 'public/admin_file/standar_layanan/' . $nama_sengketa)) {
+            unlink(ROOTPATH . 'public/admin_file/standar_layanan/' . $nama_sengketa);
+        }
+        $sengketa->move('admin_file/standar_layanan', $nama_sengketa);
+
+        $nama_jalur = 'jalur-' . time() . '.' . $jalur->getClientExtension();
+        if (file_exists(ROOTPATH . 'public/admin_file/standar_layanan/' . $nama_jalur)) {
+            unlink(ROOTPATH . 'public/admin_file/standar_layanan/' . $nama_jalur);
+        }
+        $jalur->move('admin_file/standar_layanan', $nama_jalur);
+
+        $nama_biaya = 'biaya-' . time() . '.' . $biaya->getClientExtension();
+        if (file_exists(ROOTPATH . 'public/admin_file/standar_layanan/' . $nama_biaya)) {
+            unlink(ROOTPATH . 'public/admin_file/standar_layanan/' . $nama_biaya);
+        }
+        $biaya->move('admin_file/standar_layanan', $nama_biaya);
+
+        $data_insert = [
+            'maklumat' => $nama_maklumat,
+            'prosedur' => $nama_prosedur,
+            'keberatan' => $nama_keberatan,
+            'sengketa' => $nama_sengketa,
+            'jalur' => $nama_jalur,
+            'biaya' => $nama_biaya,
+        ];
+
+
+        if ($this->standarModel->insert($data_insert)) {
+            session()->setFlashdata('success', "Standar layanan berhasil diinput");
+            return redirect()->to(base_url('admineppid/v_standar_layanan'));
+        } else {
+            session()->setFlashdata('fail', ["Standar layanan gagal diinput"]);
+            return redirect()->to(base_url('admineppid/v_standar_layanan'));
+        }
+    }
+
+    public function modal_edit_standar()
+    {
+        $id = $this->request->getVar('id');
+        $db = db_connect();
+        $builder = $db->table('standar_layanan');
+        $data_standar = $builder->get()->getRowArray();
+        $data = [
+            'data_standar' => $data_standar
+
+        ];
+
+        return $this->response->setJSON([view('admin/modal/editstandar', $data)]);
+    }
+
+    public function edit_standar_layanan()
+    {
+
+
+        $maklumat = $this->request->getFile('maklumat');
+        $prosedur = $this->request->getFile('prosedur');
+        $keberatan = $this->request->getFile('keberatan');
+        $sengketa = $this->request->getFile('sengketa');
+        $jalur = $this->request->getFile('jalur');
+        $biaya = $this->request->getFile('biaya');
+        $maklumat_lama = $this->request->getVar('maklumat_lama');
+        $prosedur_lama = $this->request->getVar('prosedur_lama');
+        $keberatan_lama = $this->request->getVar('keberatan_lama');
+        $sengketa_lama = $this->request->getVar('sengketa_lama');
+        $jalur_lama = $this->request->getVar('jalur_lama');
+        $biaya_lama = $this->request->getVar('biaya_lama');
+        $id = $this->request->getVar('id');
+
+        $data_validasi = [
+            'maklumat' => $maklumat,
+            'prosedur' => $prosedur,
+            'keberatan' => $keberatan,
+            'sengketa' => $sengketa,
+            'jalur' => $jalur,
+            'biaya' => $biaya,
+        ];
+
+
+        $this->validation->setRules([
+            'maklumat' => [
+                'rules' => 'ext_in[maklumat,jpg,png]',
+                'errors' => [
+                    'ext_in' => 'File harus jpg atau png'
+                ]
+            ],
+            'prosedur' => [
+                'rules' => 'ext_in[prosedur,jpg,png]',
+                'errors' => [
+                    'ext_in' => 'File harus jpg atau png'
+                ]
+            ],
+            'keberatan' => [
+                'rules' => 'ext_in[keberatan,jpg,png]',
+                'errors' => [
+                    'ext_in' => 'File harus jpg atau png'
+                ]
+            ],
+            'sengketa' => [
+                'rules' => 'ext_in[sengketa,jpg,png]',
+                'errors' => [
+                    'ext_in' => 'File harus jpg atau png'
+                ]
+            ],
+            'jalur' => [
+                'rules' => 'ext_in[jalur,jpg,png]',
+                'errors' => [
+                    'ext_in' => 'File harus jpg atau png'
+                ]
+            ],
+            'biaya' => [
+                'rules' => 'ext_in[biaya,jpg,png]',
+                'errors' => [
+                    'ext_in' => 'File harus jpg atau png'
+                ]
+            ]
+        ]);
+
+        if (!$this->validation->run($data_validasi)) {
+
+            session()->setFlashdata('fail', $this->validation->getErrors());
+            return redirect()->to(base_url('admineppid/v_standar_layanan'));
+        }
+
+        if (!$maklumat->getError() == 4) {
+            $nama_maklumat = 'maklumat-' . time() . '.' . $maklumat->getClientExtension();
+            unlink(ROOTPATH . 'public/admin_file/standar_layanan/' . $maklumat_lama);
+            $maklumat->move('admin_file/standar_layanan', $nama_maklumat);
+        } else {
+            $nama_maklumat = $maklumat_lama;
+        }
+        if (!$prosedur->getError() == 4) {
+            $nama_prosedur = 'prosedur-' . time() . '.' . $prosedur->getClientExtension();
+            unlink(ROOTPATH . 'public/admin_file/standar_layanan/' . $prosedur_lama);
+            $prosedur->move('admin_file/standar_layanan', $nama_prosedur);
+        } else {
+            $nama_prosedur = $prosedur_lama;
+        }
+        if (!$keberatan->getError() == 4) {
+            $nama_keberatan = 'keberatan-' . time() . '.' . $keberatan->getClientExtension();
+            unlink(ROOTPATH . 'public/admin_file/standar_layanan/' . $keberatan_lama);
+            $keberatan->move('admin_file/standar_layanan', $nama_keberatan);
+        } else {
+            $nama_keberatan = $keberatan_lama;
+        }
+        if (!$sengketa->getError() == 4) {
+            $nama_sengketa = 'sengketa-' . time() . '.' . $sengketa->getClientExtension();
+            unlink(ROOTPATH . 'public/admin_file/standar_layanan/' . $sengketa_lama);
+            $sengketa->move('admin_file/standar_layanan', $nama_sengketa);
+        } else {
+            $nama_sengketa = $sengketa_lama;
+        }
+        if (!$jalur->getError() == 4) {
+            $nama_jalur = 'jalur-' . time() . '.' . $jalur->getClientExtension();
+            unlink(ROOTPATH . 'public/admin_file/standar_layanan/' . $jalur_lama);
+            $jalur->move('admin_file/standar_layanan', $nama_jalur);
+        } else {
+            $nama_jalur = $jalur_lama;
+        }
+        if (!$biaya->getError() == 4) {
+            $nama_biaya = 'biaya-' . time() . '.' . $biaya->getClientExtension();
+            unlink(ROOTPATH . 'public/admin_file/standar_layanan/' . $biaya_lama);
+            $biaya->move('admin_file/standar_layanan', 'biaya.' . $nama_biaya);
+        } else {
+            $nama_biaya = $biaya_lama;
+        }
+
+        $data_insert = [
+            'maklumat' => $nama_maklumat,
+            'prosedur' => $nama_prosedur,
+            'keberatan' => $nama_keberatan,
+            'sengketa' => $nama_sengketa,
+            'jalur' => $nama_jalur,
+            'biaya' => $nama_biaya,
+        ];
+
+
+        if ($this->standarModel->update($id, $data_insert)) {
+            session()->setFlashdata('success', "Standar layanan berhasil diubah");
+            return redirect()->to(base_url('admineppid/v_standar_layanan'));
+        } else {
+            session()->setFlashdata('fail', ["Standar layanan gagal diubah"]);
+            return redirect()->to(base_url('admineppid/v_standar_layanan'));
+        }
+    }
+
+    public function v_statistik()
+    {
+
+        // $db = db_connect();
+        // $builder = $db->table('');
+        // $data_standar = $builder->get()->getRowArray();
+
+        $data_statistik = $this->statistikModel->orderBy('id', 'desc')->findAll();
+
+        $data = [
+            'title' => 'Laporan Informasi',
+            'data_statistik' => $data_statistik
+        ];
+
+        return view('admin/v_statistik', $data);
+    }
+
+    public function tambah_statistik()
+    {
+        $data = [
+            'title' => 'Laporan Informasi',
+        ];
+
+        return view('admin/tambah_statistik', $data);
+    }
+
+    public function insert_statistik()
+    {
+
+        $tahun = $this->request->getVar('tahun');
+        $statistik = $this->request->getFile('statistik');
+        $rekapitulasi = $this->request->getFile('rekapitulasi');
+
+        // dd($maklumat);
+
+        $data_validasi = [
+            'tahun' => $tahun,
+            'statistik' => $statistik,
+            'rekapitulasi' => $rekapitulasi,
+        ];
+
+
+        $this->validation->setRules([
+            'tahun' => [
+                'rules' => 'required|is_unique[statistik_permohonan.tahun]',
+                'errors' => [
+                    'required' => 'Tahun harus diisi',
+                    'is_unique' => 'Data tahun ini sudah ada'
+                ]
+            ],
+            'statistik' => [
+                'rules' => 'uploaded[statistik]|ext_in[statistik,jpg,png]',
+                'errors' => [
+                    'uploaded' => 'Statistik harus diisi',
+                    'ext_in' => 'File harus jpg atau png'
+                ]
+            ],
+            'rekapitulasi' => [
+                'rules' => 'uploaded[rekapitulasi]|ext_in[rekapitulasi,jpg,png]',
+                'errors' => [
+                    'uploaded' => 'Rekapitulasi harus diisi',
+                    'ext_in' => 'File harus jpg atau png'
+                ]
+            ],
+        ]);
+
+        if (!$this->validation->run($data_validasi)) {
+
+            session()->setFlashdata('fail', $this->validation->getErrors());
+            return redirect()->to(base_url('admineppid/tambah_statistik'));
+        }
+
+        $nama_statistik = 'statistik-' . time() . '.' . $statistik->getClientExtension();
+        if (file_exists(ROOTPATH . 'public/admin_file/statistik/' . $nama_statistik)) {
+            unlink(ROOTPATH . 'public/admin_file/statistik/' . $nama_statistik);
+        }
+        $statistik->move('admin_file/statistik', $nama_statistik);
+
+        $nama_rekapitulasi = 'rekapitulasi-' . time() . '.' . $rekapitulasi->getClientExtension();
+        if (file_exists(ROOTPATH . 'public/admin_file/statistik/' . $nama_rekapitulasi)) {
+            unlink(ROOTPATH . 'public/admin_file/statistik/' . $nama_rekapitulasi);
+        }
+        $rekapitulasi->move('admin_file/statistik', $nama_rekapitulasi);
+
+
+
+        $data_insert = [
+            'tahun' => $tahun,
+            'statistik' => $nama_statistik,
+            'rekapitulasi' => $nama_rekapitulasi,
+
+        ];
+
+
+        if ($this->statistikModel->insert($data_insert)) {
+            session()->setFlashdata('success', "Data statistik berhasil diinput");
+            return redirect()->to(base_url('admineppid/v_statistik'));
+        } else {
+            session()->setFlashdata('fail', ["statistik gagal diinput"]);
+            return redirect()->to(base_url('admineppid/v_statistik'));
+        }
+    }
+
+    public function modal_edit_statistik()
+    {
+        $id = $this->request->getVar('id');
+        $db = db_connect();
+        $builder = $db->table('statistik_permohonan');
+        $data_statistik = $builder->where('id', $id)->get()->getRowArray();
+        $data = [
+            'data_statistik' => $data_statistik
+
+        ];
+
+        return $this->response->setJSON([view('admin/modal/editstatistik', $data)]);
+    }
+
+    public function edit_statistik()
+    {
+
+
+        $statistik = $this->request->getFile('statistik');
+        $rekapitulasi = $this->request->getFile('rekapitulasi');
+        $id = $this->request->getVar('id');
+        $statistik_lama = $this->request->getVar('statistik_lama');
+        $rekapitulasi_lama = $this->request->getVar('rekapitulasi_lama');
+
+        $data_validasi = [
+            'statistik' => $statistik,
+            'rekapitulasi' => $rekapitulasi,
+
+        ];
+
+
+        $this->validation->setRules([
+            'statistik' => [
+                'rules' => 'ext_in[statistik,jpg,png]',
+                'errors' => [
+                    'ext_in' => 'File harus jpg atau png'
+                ]
+            ],
+            'rekapitulasi' => [
+                'rules' => 'ext_in[rekapitulasi,jpg,png]',
+                'errors' => [
+                    'ext_in' => 'File harus jpg atau png'
+                ]
+            ]
+        ]);
+
+        if (!$this->validation->run($data_validasi)) {
+
+            session()->setFlashdata('fail', $this->validation->getErrors());
+            return redirect()->to(base_url('admineppid/v_statistik'));
+        }
+
+        if (!$statistik->getError() == 4) {
+            $nama_statistik = 'statistik-' . time() . '.' . $statistik->getClientExtension();
+            unlink(ROOTPATH . 'public/admin_file/statistik/' . $statistik_lama);
+            $statistik->move('admin_file/statistik', $nama_statistik);
+        } else {
+            $nama_statistik = $statistik_lama;
+        }
+        if (!$rekapitulasi->getError() == 4) {
+            $nama_rekapitulasi = 'rekapitulasi-' . time() . '.' . $rekapitulasi->getClientExtension();
+            unlink(ROOTPATH . 'public/admin_file/statistik/' . $rekapitulasi_lama);
+            $rekapitulasi->move('admin_file/statistik', $nama_rekapitulasi);
+        } else {
+            $nama_rekapitulasi = $rekapitulasi_lama;
+        }
+
+
+        $data_insert = [
+            'statistik' => $nama_statistik,
+            'rekapitulasi' => $nama_rekapitulasi,
+        ];
+
+
+        if ($this->statistikModel->update($id, $data_insert)) {
+            session()->setFlashdata('success', "Statistik berhasil diubah");
+            return redirect()->to(base_url('admineppid/v_statistik'));
+        } else {
+            session()->setFlashdata('fail', ["Statistik gagal diubah"]);
+            return redirect()->to(base_url('admineppid/v_statistik'));
+        }
+    }
+
+
+    public function delete_statistik()
+    {
+        $id = $this->request->getVar('id');
+        $data_statistik = $this->statistikModel->find($id);
+
+        unlink(ROOTPATH . 'public/admin_file/statistik/' . $data_statistik['statistik']);
+        unlink(ROOTPATH . 'public/admin_file/statistik/' . $data_statistik['rekapitulasi']);
+
+        $this->statistikModel->delete($id);
+
+        session()->setFlashdata('success', 'Data berhasil dihapus');
+        return $this->response->setJSON(['msg' => 'success']);
+    }
+
+    public function v_laporan_layanan()
+    {
+
+        // $db = db_connect();
+        // $builder = $db->table('');
+        // $data_standar = $builder->get()->getRowArray();
+
+        $data_laporan = $this->laporanModel->orderBy('tahun', 'desc')->findAll();
+
+        $data = [
+            'title' => 'Laporan Informasi',
+            'data_laporan' => $data_laporan
+        ];
+
+        return view('admin/v_laporan_layanan', $data);
+    }
+
+    public function tambah_laporan()
+    {
+        $data = [
+            'title' => 'Laporan Informasi',
+        ];
+
+        return view('admin/tambah_laporan', $data);
+    }
+
+    public function insert_laporan()
+    {
+
+        $tahun = $this->request->getVar('tahun');
+        $laporan = $this->request->getFile('laporan');
+
+        $data_validasi = [
+            'tahun' => $tahun,
+            'laporan' => $laporan,
+        ];
+
+
+        $this->validation->setRules([
+            'tahun' => [
+                'rules' => 'required|is_unique[laporan_layanan.tahun]',
+                'errors' => [
+                    'required' => 'Tahun harus diisi',
+                    'is_unique' => 'Data tahun ini sudah ada'
+                ]
+            ],
+            'laporan' => [
+                'rules' => 'uploaded[laporan]|ext_in[laporan,pdf]',
+                'errors' => [
+                    'uploaded' => 'laporan harus diisi',
+                    'ext_in' => 'File harus pdf'
+                ]
+            ]
+        ]);
+
+        if (!$this->validation->run($data_validasi)) {
+
+            session()->setFlashdata('fail', $this->validation->getErrors());
+            return redirect()->to(base_url('admineppid/tambah_laporan'));
+        }
+
+        $nama_laporan = 'laporan-' . time() . '.' . $laporan->getClientExtension();
+
+        $laporan->move('admin_file/laporan', $nama_laporan);
+
+        $data_insert = [
+            'tahun' => $tahun,
+            'laporan' => $nama_laporan,
+
+        ];
+
+
+        if ($this->laporanModel->insert($data_insert)) {
+            session()->setFlashdata('success', "Data laporan berhasil diinput");
+            return redirect()->to(base_url('admineppid/v_laporan_layanan'));
+        } else {
+            session()->setFlashdata('fail', ["laporan gagal diinput"]);
+            return redirect()->to(base_url('admineppid/v_laporan_layanan'));
+        }
+    }
+
+    public function modal_edit_laporan()
+    {
+        $id = $this->request->getVar('id');
+        // $db = db_connect();
+        // $builder = $db->table('statistik_permohonan');
+        // $data_statistik = $builder->where('id', $id)->get()->getRowArray();
+
+        $data_laporan = $this->laporanModel->find($id);
+
+        $data = [
+            'data_laporan' => $data_laporan
+
+        ];
+
+        return $this->response->setJSON([view('admin/modal/editlaporan', $data)]);
+    }
+
+    public function edit_laporan()
+    {
+
+        $laporan = $this->request->getFile('laporan');
+        $id = $this->request->getVar('id');
+        $laporan_lama = $this->request->getVar('laporan_lama');
+
+        $data_validasi = [
+            'laporan' => $laporan,
+
+        ];
+
+
+        $this->validation->setRules([
+            'laporan' => [
+                'rules' => 'ext_in[laporan,pdf]',
+                'errors' => [
+                    'ext_in' => 'File harus pdf'
+                ]
+            ]
+        ]);
+
+        if (!$this->validation->run($data_validasi)) {
+
+            session()->setFlashdata('fail', $this->validation->getErrors());
+            return redirect()->to(base_url('admineppid/v_laporan_layanan'));
+        }
+
+        if (!$laporan->getError() == 4) {
+            $nama_laporan = 'laporan-' . time() . '.' . $laporan->getClientExtension();
+            unlink(ROOTPATH . 'public/admin_file/laporan/' . $laporan_lama);
+            $laporan->move('admin_file/laporan', $nama_laporan);
+        } else {
+            $nama_laporan = $laporan_lama;
+        }
+
+
+        $data_insert = [
+            'laporan' => $nama_laporan,
+        ];
+
+
+        if ($this->laporanModel->update($id, $data_insert)) {
+            session()->setFlashdata('success', "Data Laporan berhasil diubah");
+            return redirect()->to(base_url('admineppid/v_laporan_layanan'));
+        } else {
+            session()->setFlashdata('fail', ["Data laporan gagal diubah"]);
+            return redirect()->to(base_url('admineppid/v_laporan_layanan'));
+        }
+    }
+
+    public function delete_laporan()
+    {
+        $id = $this->request->getVar('id');
+        $data_laporan = $this->laporanModel->find($id);
+
+        unlink(ROOTPATH . 'public/admin_file/laporan/' . $data_laporan['laporan']);
+
+        $this->laporanModel->delete($id);
+
+        session()->setFlashdata('success', 'Data berhasil dihapus');
+        return $this->response->setJSON(['msg' => 'success']);
+    }
+
+    public function file_check_laporan($nama_file)
+    {
+        $client = \Config\Services::curlrequest();
+        $response = $client->send('GET', base_url('admin_file/laporan/' . $nama_file));
+        // $body = $response->getBody();
+
+        return $response;
+    }
+
+    public function v_prasyarat()
+    {
+        $data_prasyarat = $this->prasyaratModel->first();
+        $data = [
+            'data_prasyarat' => $data_prasyarat
+        ];
+        return view('admin/v_prasyarat', $data);
+    }
+
+    public function manipulate_prasyarat()
+    {
+        $data_prasyarat = $this->prasyaratModel->first();
+        if ($data_prasyarat != null) {
+            $data = [
+                'title' => 'Admin | Footer',
+                'jenisUpdate' => 'edit',
+                'data_prasyarat' => $data_prasyarat
+            ];
+        } else {
+            $data = [
+                'title' => 'Admin | Footer',
+                'jenisUpdate' => 'insert'
+            ];
+        }
+
+        return view('admin/manipulate-prasyarat', $data);
+    }
+
+    public function insert_prasyarat()
+    {
+        if (!$this->validate([
+            'prasyarat' => [
+                'rules' => 'required',
+                'errors' => [
+                    'Prasyarat harus diisi'
+                ]
+            ],
+            'hubungi_kami' => [
+                'rules' => 'required',
+                'errors' => [
+                    'Hubungi kami harus diisi'
+                ]
+            ],
+            'faq' => [
+                'rules' => 'required',
+                'errors' => [
+                    'Faq harus diisi'
+                ]
+            ],
+
+        ])) {
+            session()->setFlashdata('fail', $this->validation->getErrors());
+            return $this->response->setJSON(['url' => base_url('admineppid/tambah_prasyarat')]);
+        };
+
+        $jenis = $this->request->getVar('jenis');
+        $id = $this->request->getVar('id');
+
+        $data_prasyarat = [
+            'prasyarat' => $this->request->getVar('prasyarat'),
+            'hubungi_kami' => $this->request->getVar('hubungi_kami'),
+            'faq' => $this->request->getVar('faq'),
+        ];
+
+        if ($jenis == 'insert') {
+
+            if ($this->prasyaratModel->insert($data_prasyarat)) {
+                session()->setFlashdata('success', 'Data prasyarat berhasil ditambahkan');
+                return $this->response->setJSON(['url' => base_url('admineppid/v_prasyarat')]);
+            } else {
+                session()->setFlashdata('fail', 'Data PPID gagal ditambahkan');
+                return $this->response->setJSON(['url' => base_url('admineppid/manipulate_prasyarat')]);
+            }
+        } else {
+            if ($this->profilPpidModel->update($id, $data_prasyarat)) {
+                session()->setFlashdata('success', 'Data PPID berhasil diupdate');
+                return $this->response->setJSON(['url' => base_url('admineppid/v_prasyarat')]);
+            } else {
+                session()->setFlashdata('fail', 'Data PPID gagal diupdate');
+                return $this->response->setJSON(['url' => base_url('admineppid/manipulate_prasyarat')]);
+            }
+        }
+    }
+
+    public function v_link_terkait()
+    {
+
+        $data = [
+            'title' => 'Admin | Footer',
+        ];
+
+        return view('admin/v_link_terkait', $data);
+    }
+
+    public function data_link_terkait_datatable()
+    {
+        $request = Services::request();
+        $datamodel = new LinkterkaitModel($request);
+        if ($request->getMethod(true) == 'POST') {
+            $lists = $datamodel->get_datatables();
+            $data = [];
+            $no = $request->getPost("start");
+            foreach ($lists as $list) {
+
+                $no++;
+                $row = [];
+                $row[] = $no;
+                $row[] = $list->alias;
+                $row[] = $list->link;
+
+                $row[] = "<a href='' class='btn btn-info edit_btn' data-id=" . $list->id . " style='border-radius:50%' data-toggle='tooltip' data-placement='bottom' title='Edit'><i class='fas fa-check-square'></i></a><a href='' class='btn btn-danger delete_btn' data-id=" . $list->id .  " style='border-radius:50%'><i class='fas fa-trash-alt' data-toggle='tooltip' data-placement='bottom' title='Hapus'></i></a>";
+                $data[] = $row;
+            }
+            $output = [
+                "draw" => $request->getPost('draw'),
+                "recordsTotal" => $datamodel->count_all(),
+                "recordsFiltered" => $datamodel->count_filtered(),
+                "data" => $data
+            ];
+            echo json_encode($output);
+        }
+    }
+
+    public function tambah_link_terkait()
+    {
+        $data = [
+            'title' => 'Admin | Tambah link terkait'
+        ];
+
+        return view('admin/tambah_link_terkait');
+    }
+
+    public function insert_link_terkait()
+    {
+        $alias = $this->request->getVar('alias');
+        $link = $this->request->getVar('link');
+
+        if (!$this->validate([
+            'alias' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Alias peraturan harus diisi'
+                ]
+            ],
+            'link' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Link harus diisi'
+                ]
+            ]
+        ])) {
+            session()->setFlashdata('fail', $this->validation->getErrors());
+            return $this->response->setJSON(['msg' => 'fail']);
+        }
+
+        $jumlah_input = count($alias);
+        for ($i = 0; $i < $jumlah_input; $i++) {
+            $data = [
+                'alias' => $alias[$i],
+                'link' => $link[$i]
+            ];
+
+            $this->linkterkaitModel->insert($data);
+        }
+
+        session()->setFlashdata('success', "{$jumlah_input} data berhasil diinput");
+        return $this->response->setJSON(['msg' => 'success']);
+    }
+
+    public function delete_link_terkait()
+    {
+
+        $id = $this->request->getVar('id');
+        $this->linkterkaitModel->delete($id);
+        session()->setFlashdata('success', 'Link berhasil dihapus');
+        return $this->response->setJSON(['msg' => 'success']);
+    }
+
+    public function modal_edit_link_terkait()
+    {
+        $id = $this->request->getVar('id');
+
+        $db = db_connect();
+        $builder = $db->table('link_terkait');
+        $data_link = $builder->where('id', $id)->get()->getRowArray();
+
+        $data = [
+            'data_link' => $data_link
+        ];
+
+        return $this->response->setJSON([view('admin/modal/editlinkterkait', $data)]);
+    }
+
+    public function edit_link_terkait()
+    {
+        $alias = $this->request->getVar('alias');
+        $link = $this->request->getVar('link');
+        $id = $this->request->getVar('id');
+
+        if (!$this->validate([
+            'alias' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Alias harus diisi'
+                ]
+            ],
+            'link' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Link harus diisi'
+                ]
+            ]
+        ])) {
+            session()->setFlashdata('fail', $this->validation->getErrors());
+            return redirect()->to('admineppid/v_link_terkait');
+        }
+
+        $data = [
+            'alias' => $alias,
+            'link' => $link
+        ];
+        $db = db_connect();
+        $builder = $db->table('link_terkait');
+        $builder->where('id', $id)->update($data);
+
+        session()->setFlashdata('success', 'Data berhasil diubah');
+        return redirect()->to('admineppid/v_link_terkait');
+    }
+
+    public function v_layanan_elektronik()
+    {
+
+        $data = [
+            'title' => 'Admin | Footer',
+        ];
+
+        return view('admin/v_layanan_elektronik', $data);
+    }
+
+    public function data_layanan_elektronik_datatable()
+    {
+        $request = Services::request();
+        $datamodel = new LayananelektronikModel($request);
+        if ($request->getMethod(true) == 'POST') {
+            $lists = $datamodel->get_datatables();
+            $data = [];
+            $no = $request->getPost("start");
+            foreach ($lists as $list) {
+
+                $no++;
+                $row = [];
+                $row[] = $no;
+                $row[] = $list->alias;
+                $row[] = $list->link;
+
+                $row[] = "<a href='' class='btn btn-info edit_btn' data-id=" . $list->id . " style='border-radius:50%' data-toggle='tooltip' data-placement='bottom' title='Edit'><i class='fas fa-check-square'></i></a><a href='' class='btn btn-danger delete_btn' data-id=" . $list->id .  " style='border-radius:50%'><i class='fas fa-trash-alt' data-toggle='tooltip' data-placement='bottom' title='Hapus'></i></a>";
+                $data[] = $row;
+            }
+            $output = [
+                "draw" => $request->getPost('draw'),
+                "recordsTotal" => $datamodel->count_all(),
+                "recordsFiltered" => $datamodel->count_filtered(),
+                "data" => $data
+            ];
+            echo json_encode($output);
+        }
+    }
+
+    public function tambah_layanan_elektronik()
+    {
+        $data = [
+            'title' => 'Admin | Tambah layanan elektronik'
+        ];
+
+        return view('admin/tambah_layanan_elektronik');
+    }
+
+    public function insert_layanan_elektronik()
+    {
+        $alias = $this->request->getVar('alias');
+        $link = $this->request->getVar('link');
+
+        if (!$this->validate([
+            'alias' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Alias peraturan harus diisi'
+                ]
+            ],
+            'link' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Link harus diisi'
+                ]
+            ]
+        ])) {
+            session()->setFlashdata('fail', $this->validation->getErrors());
+            return $this->response->setJSON(['msg' => 'fail']);
+        }
+
+        $jumlah_input = count($alias);
+        for ($i = 0; $i < $jumlah_input; $i++) {
+            $data = [
+                'alias' => $alias[$i],
+                'link' => $link[$i]
+            ];
+
+            $this->layananelektronikModel->insert($data);
+        }
+
+        session()->setFlashdata('success', "{$jumlah_input} data berhasil diinput");
+        return $this->response->setJSON(['msg' => 'success']);
+    }
+
+    public function modal_edit_layanan_elektronik()
+    {
+        $id = $this->request->getVar('id');
+
+        $db = db_connect();
+        $builder = $db->table('layanan_elektronik');
+        $data_link = $builder->where('id', $id)->get()->getRowArray();
+
+        $data = [
+            'data_link' => $data_link
+        ];
+
+        return $this->response->setJSON([view('admin/modal/editlayananelektronik', $data)]);
+    }
+
+    public function edit_layanan_elektronik()
+    {
+        $alias = $this->request->getVar('alias');
+        $link = $this->request->getVar('link');
+        $id = $this->request->getVar('id');
+
+        if (!$this->validate([
+            'alias' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Alias harus diisi'
+                ]
+            ],
+            'link' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Link harus diisi'
+                ]
+            ]
+        ])) {
+            session()->setFlashdata('fail', $this->validation->getErrors());
+            return redirect()->to('admineppid/v_layanan_elektronik');
+        }
+
+        $data = [
+            'alias' => $alias,
+            'link' => $link
+        ];
+        $db = db_connect();
+        $builder = $db->table('layanan_elektronik');
+        $builder->where('id', $id)->update($data);
+
+        session()->setFlashdata('success', 'Data berhasil diubah');
+        return redirect()->to('admineppid/v_layanan_elektronik');
+    }
+
+    public function delete_layanan_elektronik()
+    {
+
+        $id = $this->request->getVar('id');
+        $this->layananelektronikModel->delete($id);
+        session()->setFlashdata('success', 'Link berhasil dihapus');
+        return $this->response->setJSON(['msg' => 'success']);
+    }
+
+    public function v_admin()
+    {
+
+        return view('admin/v_admin');
+    }
+
+    public function data_admin_datatable()
+    {
+        $request = Services::request();
+        $datamodel = new AdminauthModel($request);
+        if ($request->getMethod(true) == 'POST') {
+            $lists = $datamodel->get_datatables();
+            $data = [];
+            $no = $request->getPost("start");
+            foreach ($lists as $list) {
+
+                $no++;
+                $row = [];
+                $row[] = $no;
+                $row[] = $list->nama;
+                $row[] = $list->nip;
+                $row[] = $list->jabatan;
+                $row[] = $list->email;
+                $row[] = "<img class='img-fluid' src='" . base_url('admin/img_profile/' . $list->foto_profil) . "' width='80vh'>";
+
+                $row[] = "<a href='' class='btn btn-info edit_btn' data-id=" . $list->id . " style='border-radius:50%' data-toggle='tooltip' data-placement='bottom' title='Edit'><i class='fas fa-check-square'></i></a><a href='' class='btn btn-danger delete_btn' data-id=" . $list->id . " data-foto=" . $list->foto_profil . " style='border-radius:50%' data-toggle='tooltip' data-placement='bottom' title='Hapus'><i class='fas fa-trash-alt'></i></a>";
+                $data[] = $row;
+            }
+            $output = [
+                "draw" => $request->getPost('draw'),
+                "recordsTotal" => $datamodel->count_all(),
+                "recordsFiltered" => $datamodel->count_filtered(),
+                "data" => $data
+            ];
+            echo json_encode($output);
+        }
+    }
+
+    public function tambah_admin()
+    {
+
+        return view('admin/tambah_admin');
+    }
+
+    public function modal_edit_admin()
+    {
+        $id = $this->request->getVar('id');
+
+        $db = db_connect();
+        $builder = $db->table('admin_auth');
+        $data_admin = $builder->where('id', $id)->get()->getRowArray();
+
+        $data = [
+            'data_admin' => $data_admin
+        ];
+
+        return $this->response->setJSON([view('admin/modal/editadmin', $data)]);
+    }
+
+    public function v_user()
+    {
+
+        return view('admin/v_user');
+    }
+
+    public function data_user_datatable()
+    {
+        $request = Services::request();
+        $datamodel = new UserauthModelDT($request);
+        if ($request->getMethod(true) == 'POST') {
+            $lists = $datamodel->get_datatables();
+            $data = [];
+            $no = $request->getPost("start");
+            foreach ($lists as $list) {
+
+                $no++;
+                $row = [];
+                $row[] = $no;
+                $row[] = $list->nik;
+                $row[] = $list->nama;
+                $row[] = $list->email;
+                $row[] = $list->nomor_telepon;
+                $row[] = $list->alamat;
+                $row[] = $list->pekerjaan;
+                $row[] = $list->institusi;
+                $row[] = "<a href='' class='btn btn-info edit_btn' data-id=" . $list->id . " style='border-radius:50%' data-toggle='tooltip' data-placement='bottom' title='Edit'><i class='fas fa-check-square'></i></a><a href='' class='btn btn-danger delete_btn' data-id=" . $list->id .
+                    " style='border-radius:50%' data-toggle='tooltip' data-placement='bottom' title='Hapus'><i class='fas fa-trash-alt'></i></a>";
+                $data[] = $row;
+            }
+            $output = [
+                "draw" => $request->getPost('draw'),
+                "recordsTotal" => $datamodel->count_all(),
+                "recordsFiltered" => $datamodel->count_filtered(),
+                "data" => $data
+            ];
+            echo json_encode($output);
+        }
+    }
+
+    public function tambah_user()
+    {
+
+        return view('admin/tambah_user');
+    }
+
+    public function modal_edit_user()
+    {
+        $id = $this->request->getVar('id');
+
+        $db = db_connect();
+        $builder = $db->table('user_profil');
+        $data_user = $builder->where('id', $id)->get()->getRowArray();
+
+        $data = [
+            'data_user' => $data_user
+        ];
+
+        return $this->response->setJSON([view('admin/modal/edituser', $data)]);
     }
 }

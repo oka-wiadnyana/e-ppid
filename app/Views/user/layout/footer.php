@@ -5,7 +5,7 @@
         <div class="container">
             <div class="row">
                 <div class="col text-center">
-                    <h4><a class="footer-link" href="">Prasyarat</a> | <a class="footer-link" href="">Hubungi Kami</a> | <a class="footer-link" href="">FAQ</a></h4>
+                    <h4><a class="footer-link" href="<?= base_url('userpage/v_prasyarat/prasyarat'); ?>">Prasyarat</a> | <a class="footer-link" href="<?= base_url('userpage/v_prasyarat/hubungi_kami'); ?>">Hubungi Kami</a> | <a class="footer-link" href="<?= base_url('userpage/v_prasyarat/faq'); ?>">FAQ</a></h4>
                 </div>
             </div>
         </div>
@@ -18,22 +18,22 @@
                 <div class="col-lg-3 col-md-6 footer-links">
                     <h4>Link Terkait</h4>
                     <ul>
-                        <li><i class="bx bx-chevron-right"></i> <a href="<?= session()->get('profil_link_satker') ?>">Pengadilan Negeri Bangli</a></li>
-                        <li><i class="bx bx-chevron-right"></i> <a href="#">SIWAS</a></li>
-                        <li><i class="bx bx-chevron-right"></i> <a href="#">Pengadilan Tinggi Denpasar</a></li>
-                        <li><i class="bx bx-chevron-right"></i> <a href="#">Dirjen Badilum</a></li>
-                        <li><i class="bx bx-chevron-right"></i> <a href="#">Mahkamah Agung R.I.</a></li>
+                        <?php if (!empty($link_terkait)) : ?>
+                            <?php foreach ($link_terkait as $d) : ?>
+                                <li><i class="bx bx-chevron-right"></i> <a href="<?= $d['link'] ?>" target='blank'><?= $d['alias']; ?></a></li>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </ul>
                 </div>
 
                 <div class="col-lg-3 col-md-6 footer-links">
                     <h4>Layanan Elektronik</h4>
                     <ul>
-                        <li><i class="bx bx-chevron-right"></i> <a href="#">Ecourt</a></li>
-                        <li><i class="bx bx-chevron-right"></i> <a href="#">Eraterang</a></li>
-                        <li><i class="bx bx-chevron-right"></i> <a href="#">E-Penelitian</a></li>
-                        <li><i class="bx bx-chevron-right"></i> <a href="#">E-Mediator</a></li>
-                        <li><i class="bx bx-chevron-right"></i> <a href="#">SiPinter</a></li>
+                        <?php if (!empty($layanan_elektronik)) : ?>
+                            <?php foreach ($layanan_elektronik as $d) : ?>
+                                <li><i class="bx bx-chevron-right"></i> <a href="<?= $d['link'] ?>" target='blank'><?= $d['alias']; ?></a></li>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </ul>
                 </div>
 

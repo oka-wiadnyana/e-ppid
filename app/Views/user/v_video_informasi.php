@@ -35,7 +35,7 @@
                 </div>
             <?php endforeach; ?>
         </div>
-        <?= $pager->links('cust_pagination', 'custom_pager') ?>
+        <?= $pager->links('cust_pagination', 'default_full') ?>
     </div>
 </section>
 

@@ -8,6 +8,7 @@ class PermohonanModel extends Model
 {
 
     protected $table            = 'permohonan';
+    protected $primaryKey = 'id';
     // protected $useSoftDeletes   = true;
     protected $allowedFields    = [
         'nomor_register',
@@ -26,8 +27,8 @@ class PermohonanModel extends Model
     protected $deletedField  = 'deleted_at';
 
     protected $column_order = array(null, 'nomor_register', 'jenis_informasi', 'tanggal_permohonan', 'isi_permohonan', 'email', 'jawaban');
-    protected $column_search = array('jenis_informasi', 'tanggal_permohonan', 'isi_permohonan', 'status');
-    protected $order = array('nomor_register' => 'desc', 'nomor_register' => 'desc');
+    protected $column_search = array('nomor_register', 'jenis_informasi', 'tanggal_permohonan', 'isi_permohonan', 'status', 'jawaban');
+    protected $order = array('nomor_register' => 'desc');
     protected $request;
     protected $db;
     protected $dt;
@@ -39,7 +40,8 @@ class PermohonanModel extends Model
         $this->db = db_connect();
         $this->request = $request;
 
-        $this->dt = $this->db->table($this->table)->select("$this->table.id as permohonan_id,id_jenis_informasi,nomor_register,tanggal_permohonan,isi_permohonan,file_permohonan,email,jenis_informasi,status,jawaban")->join('jenis_informasi', "$this->table.id_jenis_informasi=jenis_informasi.id")->join('proses_permohonan', "$this->table.id=proses_permohonan.permohonan_id", 'left');
+
+        $this->dt = $this->db->table($this->table)->select("$this->table.id as permohonan_id,jenis_informasi,nomor_register,tanggal_permohonan,isi_permohonan,file_permohonan,$this->table.email as user_email,jenis_informasi,$this->table.status as status,jawaban,nama,isi_keberatan")->where("$this->table.email", session()->get('user_email'))->join('user_profil', "$this->table.email=user_profil.email")->join('jenis_informasi', "$this->table.id_jenis_informasi=jenis_informasi.id")->join('proses_permohonan', "$this->table.id=proses_permohonan.permohonan_id", 'left')->join('keberatan', "$this->table.id=keberatan.permohonan_id", 'left');
     }
 
     private function _get_datatables_query()
@@ -77,11 +79,11 @@ class PermohonanModel extends Model
     function count_filtered()
     {
         $this->_get_datatables_query();
-        return $this->dt->countAllResults();
+        return $this->dt->join('proses_permohonan', "$this->table.id=proses_permohonan.permohonan_id", 'left')->join('jenis_informasi', "$this->table.id_jenis_informasi=jenis_informasi.id")->where('email', session()->get('user_email'))->countAllResults();
     }
     public function count_all()
     {
-        $tbl_storage = $this->db->table($this->table);
+        $tbl_storage = $this->db->table('permohonan')->where('email', session()->get('user_email'));
         return $tbl_storage->countAllResults();
     }
 
@@ -104,9 +106,41 @@ class PermohonanModel extends Model
     public function find_data($id)
     {
         $data = $this->db->table($this->table)
-            ->select("$this->table.id as permohonan_id,id_jenis_informasi,nomor_register,tanggal_permohonan,isi_permohonan,file_permohonan,email,jenis_informasi")
+            ->select("$this->table.id as permohonan_id,id_jenis_informasi,nomor_register,tanggal_permohonan,isi_permohonan,file_permohonan,jenis_informasi,$this->table.email as user_email, nama, jawaban")
+            ->join('user_profil', "$this->table.email=user_profil.email")
             ->join('jenis_informasi', "$this->table.id_jenis_informasi=jenis_informasi.id")
+            ->join('proses_permohonan', "$this->table.id=proses_permohonan.permohonan_id", 'left')
             ->where("$this->table.id", $id)->get()->getRowArray();
         return $data;
+    }
+
+    public function find_data_proses($id)
+    {
+        $data = $this->db->table('proses_permohonan')
+            ->where('permohonan_id', $id)
+            ->get()->getResultArray();
+        return $data;
+    }
+
+    public function update_proses($id, $data)
+    {
+        $data_exist = $this->db->table('proses_permohonan')
+            ->where('permohonan_id', $id)->countAllResults();
+
+        if ($data_exist > 0) {
+            $this->db->table('proses_permohonan')
+                ->where('permohonan_id', $id)
+                ->update($data);
+        } else {
+            $data_insert = array_merge($data, ['permohonan_id' => $id]);
+            $this->db->table('proses_permohonan')
+                ->insert($data_insert);
+        }
+
+        $this->db->table($this->table)
+            ->where('id', $id)
+            ->update(['status' => 'Sudah ditindaklanjuti']);
+
+        return true;
     }
 }

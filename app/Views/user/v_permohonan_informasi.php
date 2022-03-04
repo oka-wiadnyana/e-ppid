@@ -6,6 +6,9 @@
  <script src="https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap5.min.js"></script>
  <section id="daftar_permohonan">
      <div class="container">
+         <div class="row">
+             <h1 class="text-center fw-bolder">Daftar Permohonan informasi</h1>
+         </div>
 
          <a href="<?= base_url('userpage/v_tambah_permohonan'); ?>" class="btn btn-info mb-2 text-white"><i class='bx bx-plus-circle'></i> Tambah</a>
          <hr>
@@ -34,6 +37,7 @@
      </div>
 
      <div id="modal-edit"></div>
+     <div id="modal-keberatan"></div>
  </section>
 
  <script>
@@ -51,22 +55,27 @@
                      "orderable": false,
                  },
                  {
-                     responsivePriority: 2,
+                     responsivePriority: 1,
+                     targets: 0,
+
+                 },
+                 {
+                     responsivePriority: 1,
                      targets: -1,
 
                  },
                  {
-                     responsivePriority: 1,
+                     responsivePriority: 2,
                      targets: 7,
 
                  },
                  {
-                     responsivePriority: 1,
+                     responsivePriority: 2,
                      targets: 6,
 
                  },
                  {
-                     responsivePriority: 1,
+                     responsivePriority: 2,
                      targets: 4,
 
                  }
@@ -130,6 +139,28 @@
              }).then(function(res) {
                  $('#modal-edit').html(res);
                  $('#modal_edit').modal('show');
+                 console.log(res)
+             });
+
+             console.log(id)
+         });
+
+         $('#data_permohonan tbody').on('click', 'tr td:nth-child(9) .keberatan_btn', function(e) {
+             e.preventDefault();
+             let id = $(this).data('id');
+             $.ajax({
+                 type: "post",
+                 data: {
+                     id
+                 },
+                 url: "<?= base_url('userpage/modal_keberatan'); ?>",
+                 error: function(xhr, ajaxOptions, thrownError) {
+                     alert(xhr.status + '\n' + xhr.responseText + '\n' + thrownError)
+                 },
+                 dataType: "json",
+             }).then(function(res) {
+                 $('#modal-keberatan').html(res);
+                 $('#modal_keberatan').modal('show');
                  console.log(res)
              });
 

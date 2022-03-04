@@ -2,17 +2,17 @@
     <div class="left_col scroll-view">
         <!-- menu profile quick info -->
         <div class="navbar nav_title" style="border: 0;">
-            <a href="index.html" class="site_title"><i class="fa fa-paw"></i> <span>Gentelella Alela!</span></a>
+            <a href="index.html" class="site_title"><i class="fa fa-book"></i> <span>E-PPID Admin</span></a>
         </div>
 
         <div class="clearfix"></div>
         <div class="profile clearfix">
             <div class="profile_pic">
-                <img src="<?= base_url('admin'); ?>/images/img.jpg" alt="..." class="img-circle profile_img">
+                <img src="<?= base_url('admin/img_profile/' . session()->get('admin_foto')); ?>" alt="..." class="img-circle profile_img">
             </div>
             <div class="profile_info">
-                <span>Welcome,</span>
-                <h2>John Doe</h2>
+                <span>Selamat datang, </span>
+                <h2><?= session()->get('admin_nama'); ?></h2>
             </div>
         </div>
         <!-- /menu profile quick info -->
@@ -22,11 +22,12 @@
             <div class="menu_section">
                 <h3>General</h3>
                 <ul class="nav side-menu">
-                    <li><a><i class="fa fa-home"></i> Home <span class="fa fa-chevron-down"></span></a>
+                    <li><a href="<?= base_url('admineppid'); ?>"><i class="fa fa-home"></i> Home </a>
+                    </li>
+                    <li><a><i class="fa fa-edit"></i> Permohonan <span class="badge badge-danger total-notif"></span><span class="fa fa-chevron-down"></span></a>
                         <ul class="nav child_menu">
-                            <li><a href="index.html">Dashboard</a></li>
-                            <li><a href="index2.html">Dashboard2</a></li>
-                            <li><a href="index3.html">Dashboard3</a></li>
+                            <li><a href="<?= base_url('admineppid/daftar_permohonan'); ?>">Permohonan baru <span class="badge badge-danger notif-permohonan"></span></a></li>
+                            <li><a href="<?= base_url('admineppid/daftar_keberatan'); ?>">Daftar Keberatan <span class="badge badge-danger notif-keberatan"></span></a></li>
                         </ul>
                     </li>
                     <li><a><i class="fa fa-edit"></i> Informasi <span class="fa fa-chevron-down"></span></a>
@@ -37,6 +38,8 @@
                     </li>
                     <li><a href="<?= base_url('admineppid/v_profil_ppid'); ?>"><i class="fa fa-user"></i> Profil PPID</a></li>
                     <li><a href="<?= base_url('admineppid/v_profil_satker'); ?>"><i class="fa fa-users"></i> Profil Satker</a></li>
+                    <li><a href="<?= base_url('admineppid/v_peraturan'); ?>"><i class="fa fa-book"></i> Regulasi</a></li>
+                    <li><a href="<?= base_url('admineppid/v_standar_layanan'); ?>"><i class="fa fa-file"></i> Standar Layanan</a></li>
                     <li><a><i class="fa fa-desktop"></i> Referensi <span class="fa fa-chevron-down"></span></a>
                         <ul class="nav child_menu">
                             <li><a href="<?= base_url('admineppid/v_level1'); ?>">Level 1</a></li>
@@ -44,87 +47,30 @@
                             <li><a href="<?= base_url('admineppid/v_level3'); ?>">Level 3</a></li>
                         </ul>
                     </li>
-                    <li><a><i class="fa fa-table"></i> Tables <span class="fa fa-chevron-down"></span></a>
+                    <li><a><i class="fa fa-file-archive-o" aria-hidden="true"></i> Laporan <span class="fa fa-chevron-down"></span></a>
                         <ul class="nav child_menu">
-                            <li><a href="tables.html">Tables</a></li>
-                            <li><a href="tables_dynamic.html">Table Dynamic</a></li>
+                            <!-- <li><a href="<?= base_url('admineppid/v_statistik'); ?>">Laporan Akses</a></li> -->
+                            <li><a href="<?= base_url('admineppid/v_laporan_layanan'); ?>">Laporan Layanan</a></li>
                         </ul>
                     </li>
-                    <li><a><i class="fa fa-bar-chart-o"></i> Data Presentation <span class="fa fa-chevron-down"></span></a>
+                    <li><a><i class="fa fa-sticky-note-o" aria-hidden="true"></i> Footer <span class="fa fa-chevron-down"></span></a>
                         <ul class="nav child_menu">
-                            <li><a href="chartjs.html">Chart JS</a></li>
-                            <li><a href="chartjs2.html">Chart JS2</a></li>
-                            <li><a href="morisjs.html">Moris JS</a></li>
-                            <li><a href="echarts.html">ECharts</a></li>
-                            <li><a href="other_charts.html">Other Charts</a></li>
+                            <li><a href="<?= base_url('admineppid/v_prasyarat'); ?>">Prasyarat & others</a></li>
+                            <li><a href="<?= base_url('admineppid/v_link_terkait'); ?>">Link Terkait</a></li>
+                            <li><a href="<?= base_url('admineppid/v_layanan_elektronik'); ?>">Layanan Elektronik</a></li>
                         </ul>
                     </li>
-                    <li><a><i class="fa fa-clone"></i>Layouts <span class="fa fa-chevron-down"></span></a>
+                    <li><a><i class="fa fa-users"></i> Akun <span class="fa fa-chevron-down"></span></a>
                         <ul class="nav child_menu">
-                            <li><a href="fixed_sidebar.html">Fixed Sidebar</a></li>
-                            <li><a href="fixed_footer.html">Fixed Footer</a></li>
+                            <li><a href="<?= base_url('admineppid/v_admin'); ?>">Admin</a></li>
+                            <li><a href="<?= base_url('admineppid/v_user'); ?>">User</a></li>
                         </ul>
                     </li>
                 </ul>
             </div>
-            <div class="menu_section">
-                <h3>Live On</h3>
-                <ul class="nav side-menu">
-                    <li><a><i class="fa fa-bug"></i> Additional Pages <span class="fa fa-chevron-down"></span></a>
-                        <ul class="nav child_menu">
-                            <li><a href="e_commerce.html">E-commerce</a></li>
-                            <li><a href="projects.html">Projects</a></li>
-                            <li><a href="project_detail.html">Project Detail</a></li>
-                            <li><a href="contacts.html">Contacts</a></li>
-                            <li><a href="profile.html">Profile</a></li>
-                        </ul>
-                    </li>
-                    <li><a><i class="fa fa-windows"></i> Extras <span class="fa fa-chevron-down"></span></a>
-                        <ul class="nav child_menu">
-                            <li><a href="page_403.html">403 Error</a></li>
-                            <li><a href="page_404.html">404 Error</a></li>
-                            <li><a href="page_500.html">500 Error</a></li>
-                            <li><a href="plain_page.html">Plain Page</a></li>
-                            <li><a href="login.html">Login Page</a></li>
-                            <li><a href="pricing_tables.html">Pricing Tables</a></li>
-                        </ul>
-                    </li>
-                    <li><a><i class="fa fa-sitemap"></i> Multilevel Menu <span class="fa fa-chevron-down"></span></a>
-                        <ul class="nav child_menu">
-                            <li><a href="#level1_1">Level One</a>
-                            <li><a>Level One<span class="fa fa-chevron-down"></span></a>
-                                <ul class="nav child_menu">
-                                    <li class="sub_menu"><a href="level2.html">Level Two</a>
-                                    </li>
-                                    <li><a href="#level2_1">Level Two</a>
-                                    </li>
-                                    <li><a href="#level2_2">Level Two</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li><a href="#level1_2">Level One</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li><a href="javascript:void(0)"><i class="fa fa-laptop"></i> Landing Page <span class="label label-success pull-right">Coming Soon</span></a></li>
-                </ul>
-            </div>
+
 
         </div>
 
-        <div class="sidebar-footer hidden-small">
-            <a data-toggle="tooltip" data-placement="top" title="Settings">
-                <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
-            </a>
-            <a data-toggle="tooltip" data-placement="top" title="FullScreen">
-                <span class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span>
-            </a>
-            <a data-toggle="tooltip" data-placement="top" title="Lock">
-                <span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
-            </a>
-            <a data-toggle="tooltip" data-placement="top" title="Logout" href="login.html">
-                <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
-            </a>
-        </div>
     </div>
 </div>

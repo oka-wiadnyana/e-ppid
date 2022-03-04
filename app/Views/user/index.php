@@ -42,7 +42,7 @@
                  <div class="col-md-6 col-lg-3 d-flex align-items-stretch mb-5 mb-lg-0" data-aos="fade-up">
                      <div class="icon-box">
                          <div class="icon"><i class='bx bxs-food-menu'></i></div>
-                         <h4 class="title"><a href="<?= base_url('userpage/listinformasiberkala'); ?>">Informasi Berkala</a></h4>
+                         <h4 class="title"><a href="<?= base_url('userpage/listinformasi/berkala'); ?>">Informasi Berkala</a></h4>
                          <p class="description">Informasi yang wajib diperbaharui kemudian disediakan dan diumumkan kepada publik secara rutin </p>
                      </div>
                  </div>
@@ -50,7 +50,7 @@
                  <div class="col-md-6 col-lg-3 d-flex align-items-stretch mb-5 mb-lg-0" data-aos="fade-up" data-aos-delay="100">
                      <div class="icon-box">
                          <div class="icon"><i class="bx bx-file"></i></div>
-                         <h4 class="title"><a href="">Informasi Serta Merta</a></h4>
+                         <h4 class="title"><a href="<?= base_url('userpage/listinformasi/serta_merta'); ?>">Informasi Serta Merta</a></h4>
                          <p class="description">informasi yang diumumkan secara serta merta tanpa penundaan</p>
                      </div>
                  </div>
@@ -58,7 +58,7 @@
                  <div class="col-md-6 col-lg-3 d-flex align-items-stretch mb-5 mb-lg-0" data-aos="fade-up" data-aos-delay="200">
                      <div class="icon-box">
                          <div class="icon"><i class="bx bx-tachometer"></i></div>
-                         <h4 class="title"><a href="">Informasi Wajib Tersedia</a></h4>
+                         <h4 class="title"><a href="<?= base_url('userpage/listinformasi/info_setiap_saat'); ?>">Informasi Wajib Tersedia</a></h4>
                          <p class="description">Informasi yang wajib tersedia setiap saat dan dapat diakses publik </p>
                      </div>
                  </div>
@@ -82,16 +82,16 @@
 
              <div class="row" data-aos="zoom-in">
                  <div class="col-lg-4 text-center text-lg-start">
-                     <h3>Total Permintaan Layanan Informasi Tahun 2021</h3>
-                     <p class="display-2 jumlah-layanan count">20</p>
+                     <h3>Total Permintaan Layanan Informasi</h3>
+                     <p class="display-2 jumlah-layanan count"><?= $total; ?></p>
                  </div>
                  <div class="col-lg-4 text-center text-lg-start">
-                     <h3>Permintaan Layanan Informasi Yang Diterima Tahun 2021</h3>
-                     <p class="display-2 jumlah-layanan count">20</p>
+                     <h3>Permintaan Layanan Informasi Yang Diterima</h3>
+                     <p class="display-2 jumlah-layanan count"><?= $diterima; ?></p>
                  </div>
                  <div class="col-lg-4 text-center text-lg-start">
-                     <h3>Permintaan Layanan Informasi Yang Ditolak Tahun 2021</h3>
-                     <p class="display-2 jumlah-layanan count">1</p>
+                     <h3>Permintaan Layanan Informasi Yang Ditolak</h3>
+                     <p class="display-2 jumlah-layanan count"><?= $ditolak; ?></p>
                  </div>
 
              </div>
@@ -123,7 +123,7 @@
          $(this).animate({
              Counter: $(this).text()
          }, {
-             duration: 10000,
+             duration: 5000,
              easing: 'swing',
              step: function(now) {
                  $(this).text(Math.ceil(now));

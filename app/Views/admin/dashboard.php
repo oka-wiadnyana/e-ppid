@@ -2,119 +2,253 @@
 
   <?= $this->section('main-content'); ?>
 
-  <!-- jsCalendar v1.4.4 Javascript and CSS from local -->
-  <script src="<?= base_url('vio-admin'); ?>/src/vendor/jsCalender/source/jsCalendar.min.js"></script>
-  <link rel="stylesheet" href="<?= base_url('vio-admin'); ?>/src/vendor/jsCalender/source/jsCalendar.min.css" />
 
-  <!-- Chart JS -->
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.6.1/chart.min.js"></script>
-
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
   <!-- Main Content -->
-  <div class="col-9 p-3 main-content">
-    <div class="row">
-      <div class="col">
-        <h3><i class="fas fa-tachometer-alt mr-2"></i>DASHBOARD</h3>
-      </div>
+
+  <!-- <div class="col-md-4">
+    <div class="ct-chart ct-perfect-fourth"></div>
+    <div class='col'>
+      <p class='text-center'>Grafik Permohonan Informasi</p>
     </div>
-    <div class="row mt-3">
-      <div class="col-md-4">
-        <div class="card text-white bg-info">
-          <div class="card-body p-0">
-            <div class="p-3">
-              <i class="fas fa-users card-icon display-4"></i>
-              <h5 class="card-title">Jumlah Pegawai</h5>
-              <p class="card-text display-4">120</p>
-            </div>
-            <div class="card-footer card-footer-info text-center">
-              <a href="#" class="card-link text-reset">Detail</a>
-              <i class="fas fa-arrow-circle-right"></i>
-            </div>
-          </div>
-        </div>
+  </div>
+  <div class="col-md-4">
+    <div class="ct-chart-2 ct-perfect-fourth"></div>
+    <div class='col'>
+      <p class='text-center'>Grafik Permohonan Informasi</p>
+    </div>
+  </div> -->
+  <div class="row">
+    <div class="col-md-4 p-2">
+      <div class="col" class="shadow">
+        <canvas id="myChart-1" width="100%" height="100%"></canvas>
       </div>
-      <div class="col-md-4">
-        <div class="card text-white bg-success">
-          <div class="card-body p-0">
-            <div class="p-3">
-              <i class="fas fa-users card-icon display-4"></i>
-              <h5 class="card-title">Jumlah Honorer</h5>
-              <p class="card-text display-4">10</p>
-            </div>
-            <div class="card-footer card-footer-success text-center">
-              <a href="#" class="card-link text-reset">Detail</a>
-              <i class="fas fa-arrow-circle-right"></i>
-            </div>
-          </div>
-        </div>
+      <div>
+        <p class="text-center">Proses Permohonan</p>
       </div>
-      <div class="col-md-4">
-        <div class="card text-white bg-warning">
-          <div class="card-body p-0">
-            <div class="p-3">
-              <i class="fas fa-users card-icon display-4"></i>
-              <h5 class="card-title">Jumlah StakeHolder</h5>
-              <p class="card-text display-4">120</p>
-            </div>
-            <div class="card-footer card-footer-warning text-center">
-              <a href="#" class="card-link text-reset">Detail</a>
-              <i class="fas fa-arrow-circle-right"></i>
-            </div>
-          </div>
-        </div>
+
+    </div>
+    <div class="col-md-4 p-2">
+      <div class="col" class="shadow">
+        <canvas id="myChart-2" width="100%" height="100%"></canvas>
       </div>
     </div>
 
-    <div class="row mt-3">
-      <div class="col-md-6 d-flex justify-content-center">
-        <div class="auto-jsCalendar material-theme" data-month-format="month YYYY"></div>
-      </div>
-      <div class="col-md-6 d-flex justify-content-center">
-        <canvas id="myChart" width="400" height="400"></canvas>
+    <div class="col-md-4 p-2">
+      <div class="col" class="shadow">
+        <canvas id="myChart-3" width="100%" height="100%"></canvas>
       </div>
     </div>
   </div>
+  <div class="row d-flex justify-content-center">
+    <div class="col-md-4">
+      <select id="select_tahun" class="custom-select custom-select-lg mb-3">
+        <option selected disabled>Pilih tahun</option>
+        <?php $year = date('Y');  ?>
+        <?php for ($i = 0; $i < 10; $i++) : ?>
+          <option value="<?= $year - $i; ?>"><?= $year - $i; ?></option>
+        <?php endfor; ?>
+      </select>
+    </div>
+  </div>
+
+  <div class="row d-flex flex-column">
+    <div class="mt-3 mb-3 col">
+      <h4 class="text-center">Data Permohonan masuk tahun <span class="judul_tahun"></span></4>
+    </div>
+    <div class="col">
+      <canvas id="myChart-4" width="50" height="10"></canvas>
+    </div>
+
+  </div>
+
 
   <!-- End Main Content -->
 
-  <!-- Chart initiation -->
+  <!-- modal -->
+  <div id="modal_edit"></div>
+
 
   <script>
-    const ctx = document.getElementById("myChart");
+    let total = '<?= $total; ?>';
+    let proses = '<?= $diproses; ?>'
+    let belum_proses = '<?= $belum_proses; ?>';
+    let diterima = '<?= $diterima; ?>';
+    let ditolak = '<?= $ditolak; ?>';
+    let keberatan = '<?= $keberatan; ?>';
+    let keberatan_proses = '<?= $keberatan_proses; ?>';
+    let keberatan_belum_proses = '<?= $keberatan_belum_proses; ?>';
+
+
+    const ctx = document.getElementById('myChart-1');
     const myChart = new Chart(ctx, {
-      type: "doughnut",
+      type: 'bar',
       data: {
-        labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+        labels: ['Total Permohonan', 'Proses', 'Belum Proses'],
         datasets: [{
-          label: "# of Votes",
-          data: [12, 19, 3, 5, 2, 3],
+          label: 'Data proses permohonan',
+          data: [total, proses, belum_proses],
           backgroundColor: [
-            "rgba(255, 99, 132, 0.2)",
-            "rgba(54, 162, 235, 0.2)",
-            "rgba(255, 206, 86, 0.2)",
-            "rgba(75, 192, 192, 0.2)",
-            "rgba(153, 102, 255, 0.2)",
-            "rgba(255, 159, 64, 0.2)",
+            'rgba(255, 99, 132, 0.8)',
+            'rgba(54, 162, 235, 0.8)',
+            'rgba(255, 206, 86, 0.8)',
+
           ],
           borderColor: [
-            "rgba(255, 99, 132, 1)",
-            "rgba(54, 162, 235, 1)",
-            "rgba(255, 206, 86, 1)",
-            "rgba(75, 192, 192, 1)",
-            "rgba(153, 102, 255, 1)",
-            "rgba(255, 159, 64, 1)",
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+
           ],
-          borderWidth: 1,
-        }, ],
+          borderWidth: 1
+        }]
       },
       options: {
         scales: {
           y: {
-            beginAtZero: true,
-          },
-        },
-      },
+            beginAtZero: true
+          }
+        }
+      }
     });
+
+    const ctx2 = document.getElementById('myChart-2');
+    const myChart2 = new Chart(ctx2, {
+      type: 'doughnut',
+      data: {
+        labels: ['Diterima', 'Ditolak'],
+        datasets: [{
+          label: 'Pemrosesan permohonan',
+          data: [diterima, ditolak],
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.8)',
+            'rgba(54, 162, 235, 0.8)',
+
+          ],
+          borderColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+
+          ],
+          borderWidth: 1
+        }]
+      },
+      // options: {
+      //   scales: {
+      //     y: {
+      //       beginAtZero: true
+      //     }
+      //   }
+      // }
+    });
+
+    const ctx3 = document.getElementById('myChart-3');
+    const myChart3 = new Chart(ctx3, {
+      type: 'pie',
+      data: {
+        labels: ['Keberatan', 'Proses', 'Belum Proses'],
+        datasets: [{
+          label: 'Data proses permohonan',
+          data: [keberatan, keberatan_proses, keberatan_belum_proses],
+          backgroundColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+
+          ],
+          borderColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+
+          ],
+          borderWidth: 1
+        }]
+      },
+      // options: {
+      //   scales: {
+      //     y: {
+      //       beginAtZero: true
+      //     }
+      //   }
+      // }
+    });
+
+    //   var data = {
+    //     // A labels array that can contain any sort of values
+    //     labels: ['Sebagian', 'Sepenuhnya', 'Ditolak'],
+    //     // Our series array that contains series objects or in this case series data arrays
+    //     series: [
+    //       [total, diterima, ditolak]
+    //     ],
+
+    //   };
+
+    //   // Create a new line chart object where as first parameter we pass in a selector
+    //   // that is resolving to our chart container element. The Second parameter
+    //   // is the actual data object.
+    //   new Chartist.Bar('.ct-chart', data);
+
+
+    //   new Chartist.Pie('.ct-chart-2', {
+    //     series: [total, diterima, ditolak]
+    //   }, {
+    //     donut: true,
+    //     donutWidth: 60,
+    //     donutSolid: true,
+    //     startAngle: 270,
+    //     showLabel: true
+    //   });
+    // 
+
+    let myChart4;
+    let tahun = new Date().getFullYear();
+    $('.judul_tahun').html(tahun);
+    const data_perbulan = (tahun) => {
+      $.ajax({
+        type: "post",
+        url: "<?= base_url('admineppid/api_permohonan'); ?>",
+        data: {
+          tahun
+        },
+        dataType: "json",
+        success: function(response) {
+          const ctx4 = document.getElementById('myChart-4');
+          myChart4 = new Chart(ctx4, {
+            type: 'line',
+            data: {
+              labels: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'Nopember', 'Desember'],
+              datasets: [{
+                label: 'Data proses permohonan',
+                data: response,
+                fill: false,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+              }]
+            },
+            options: {
+              scales: {
+                y: {
+                  beginAtZero: true
+                }
+              }
+            }
+          });
+        }
+      });
+    }
+    data_perbulan(tahun);
+
+    $('#select_tahun').change(function() {
+      if (myChart4) {
+        myChart4.destroy();
+      }
+      let tahun_select = $(this).val();
+      $('.judul_tahun').html(tahun_select);
+      let tahun = $(this).val();
+      data_perbulan(tahun);
+    })
   </script>
+
+
   <?= $this->endSection(); ?>

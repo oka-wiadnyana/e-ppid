@@ -133,4 +133,10 @@ public/img/ckeditor/*
 !public/img/ckeditor/.gitkeep
 public/vio-admin
 public/user_file/*.pdf
+public/admin_file/*.pdf
+public/admin_file/laporan/*.pdf
+public/admin_file/standar_layanan/*.png
+public/admin_file/standar_layanan/*.jpg
+public/admin_file/statistik/*.png
+public/admin_file/statistik/*.jpg
 

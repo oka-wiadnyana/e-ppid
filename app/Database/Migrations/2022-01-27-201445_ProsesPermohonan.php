@@ -25,8 +25,19 @@ class ProsesPermohonan extends Migration
                 'constraint' => 250,
                 'null' => true,
             ],
+            'status_jawaban'       => [
+                'type'       => 'VARCHAR',
+                'constraint'       => 250,
+                'null' => true,
+            ],
+
             'jawaban'       => [
                 'type'       => 'TEXT',
+                'null' => true,
+            ],
+            'lampiran_jawaban'       => [
+                'type'       => 'VARCHAR',
+                'constraint'       => 500,
                 'null' => true,
             ],
             'created_at TIMESTAMP',
