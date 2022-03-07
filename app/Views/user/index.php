@@ -66,7 +66,7 @@
                  <div class="col-md-6 col-lg-3 d-flex align-items-stretch mb-5 mb-lg-0" data-aos="fade-up" data-aos-delay="300">
                      <div class="icon-box">
                          <div class="icon"><i class="bx bx-layer"></i></div>
-                         <h4 class="title"><a href="">Informasi Tanggap Cepat</a></h4>
+                         <h4 class="title"><a href="" id="btn-modal">Informasi Tanggap Cepat</a></h4>
                          <p class="description">Layanan informasi cepat yang disediakan oleh Pengadilan Negeri Bangli dengan menggunakan Whatsapp Bot</p>
                      </div>
                  </div>
@@ -115,6 +115,7 @@
      </section><!-- End Contact Section -->
 
  </main><!-- End #main -->
+ <div id="modal_container"></div>
 
  <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
 
@@ -130,6 +131,22 @@
              }
          });
      });
+
+
+     $('#btn-modal').click(function(e) {
+         e.preventDefault();
+         $.ajax({
+
+             url: "<?= base_url('userpage/modal_message'); ?>",
+             dataType: "json",
+         }).then(function(res) {
+             // $('#modal_edit').css('z-index', 1000);
+
+             $('#modal_container').html(res);
+             $('#modal_message').modal('show');
+             console.log(res)
+         });
+     })
  </script>
 
 

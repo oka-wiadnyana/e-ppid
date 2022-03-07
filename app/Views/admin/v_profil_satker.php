@@ -43,6 +43,18 @@
                 </div>
               </div>
               <div class="item form-group">
+                <label for="middle-name" class="col-form-label col-md-3 col-sm-3 label-align">Nomor Whatsapp</label>
+                <div class="col-md-6 col-sm-6 ">
+                  <input id="nomor_whatsapp" class="form-control" type="text" name="nomor_whatsapp" <?php if (isset($profilSatker)) : ?> value="<?= $profilSatker['nomor_whatsapp']; ?>" <?php endif; ?>>
+                </div>
+              </div>
+              <div class="item form-group">
+                <label for="middle-name" class="col-form-label col-md-3 col-sm-3 label-align">Telegram</label>
+                <div class="col-md-6 col-sm-6 ">
+                  <input id="telegram" class="form-control" type="text" name="telegram" <?php if (isset($profilSatker)) : ?> value="<?= $profilSatker['telegram']; ?>" <?php endif; ?>>
+                </div>
+              </div>
+              <div class="item form-group">
                 <label for="middle-name" class="col-form-label col-md-3 col-sm-3 label-align">Nomor Fax</label>
                 <div class="col-md-6 col-sm-6 ">
                   <input id="nomor_fax" class="form-control" type="text" name="nomor_fax" <?php if (isset($profilSatker)) : ?> value="<?= $profilSatker['nomor_fax']; ?>" <?php endif; ?>>

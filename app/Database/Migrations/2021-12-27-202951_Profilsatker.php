@@ -35,6 +35,16 @@ class Profilsatker extends Migration
                 'constraint' => '30',
                 'null' => true,
             ],
+            'nomor_whatsapp'       => [
+                'type'       => 'VARCHAR',
+                'constraint' => '30',
+                'null' => true,
+            ],
+            'telegram'       => [
+                'type'       => 'VARCHAR',
+                'constraint' => '30',
+                'null' => true,
+            ],
             'nomor_fax'       => [
                 'type'       => 'VARCHAR',
                 'constraint' => '30',

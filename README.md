@@ -5,6 +5,9 @@ Aplikasi ini adalah aplikasi untuk meningkatkan kualitas keterbukaan informasi p
 Project ini dibuat menggunakan framework _Codeigniter 4_, dan untuk halaman user mengguganakan template _Anyar_ dari BootstrapMade sedangkan CMS nya menggunakan template admin _Gentelella alela_.
 
 Demo : http://eppid.ozavo.my.id
+Admin : http://eppid.ozavo.my.id/admineppid
+Username admin : onsdee86@gmail.com
+Password admin : 12345
 
 ## Feature
 

@@ -1155,6 +1155,16 @@ class Admineppid extends BaseController
                 'errors' => [
                     'required' => 'Nomor telepon harus diisi'
                 ],
+            ], 'nomor_whatsapp' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Nomor whatsapp harus diisi'
+                ],
+            ], 'telegram' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Telegram harus diisi'
+                ],
             ], 'nomor_fax' => [
                 'rules' => 'required',
                 'errors' => [
@@ -1210,6 +1220,8 @@ class Admineppid extends BaseController
         $nama_pendek = $this->request->getVar('nama_pendek');
         $alamat = $this->request->getVar('alamat');
         $nomor_telepon = $this->request->getVar('nomor_telepon');
+        $nomor_whatsapp = $this->request->getVar('nomor_whatsapp');
+        $telegram = $this->request->getVar('telegram');
         $nomor_fax = $this->request->getVar('nomor_fax');
         $email = $this->request->getVar('email');
         $website = $this->request->getVar('website');
@@ -1248,6 +1260,8 @@ class Admineppid extends BaseController
             'nama_pendek' => $nama_pendek,
             'alamat' => $alamat,
             'nomor_telepon' => $nomor_telepon,
+            'nomor_whatsapp' => $nomor_whatsapp,
+            'telegram' => $telegram,
             'nomor_fax' => $nomor_fax,
             'email' => $email,
             'link_satker' => $website,

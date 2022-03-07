@@ -40,7 +40,7 @@ class Userpage extends BaseController
         $this->prasyaratModel = new PrasyaratModel();
 
 
-        session()->remove(['profil_nama', 'profil_nama_pendek', 'profil_alamat', 'profil_nomor_telepon', 'profil_nomor_fax', 'profil_email', 'profil_link_satker', 'profil_link_youtube', 'profil_link_facebook', 'profil_link_instagram', 'profil_link_twitter', 'profil_link_video_dasboard', 'profil_logo']);
+        session()->remove(['profil_nama', 'profil_nama_pendek', 'profil_alamat', 'profil_nomor_telepon', 'profil_nomor_whatsapp', 'profil_telegram', 'profil_nomor_fax', 'profil_email', 'profil_link_satker', 'profil_link_youtube', 'profil_link_facebook', 'profil_link_instagram', 'profil_link_twitter', 'profil_link_video_dasboard', 'profil_logo']);
 
         $this->profil = $this->profileModel->findAll();
 
@@ -54,6 +54,8 @@ class Userpage extends BaseController
                 'profil_nama_pendek' => $this->profil[0]['nama_pendek'],
                 'profil_alamat' => $this->profil[0]['alamat'],
                 'profil_nomor_telepon' => $this->profil[0]['nomor_telepon'],
+                'profil_nomor_whatsapp' => $this->profil[0]['nomor_whatsapp'],
+                'profil_telegram' => $this->profil[0]['telegram'],
                 'profil_nomor_fax' => $this->profil[0]['nomor_fax'],
                 'profil_email' => $this->profil[0]['email'],
                 'profil_link_satker' => $this->profil[0]['link_satker'],
@@ -71,6 +73,8 @@ class Userpage extends BaseController
                 'profil_nama_pendek' => 'Belum diset',
                 'profil_alamat' => 'Belum diset',
                 'profil_nomor_telepon' => 'Belum diset',
+                'profil_nomor_whatsapp' => 'Belum diset',
+                'profil_telegram' => 'Belum diset',
                 'profil_nomor_fax' => 'Belum diset',
                 'profil_email' => 'Belum diset',
                 'profil_link_satker' => 'Belum diset',
@@ -958,5 +962,10 @@ class Userpage extends BaseController
 
             return $this->response->setJSON([$permohonan_sepenuhnya, $permohonan_sebagian, $permohonan_ditolak]);
         }
+    }
+
+    public function modal_message()
+    {
+        return $this->response->setJSON([view('user/modal/modal-message')]);
     }
 }

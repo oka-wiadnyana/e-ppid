@@ -13,6 +13,8 @@ class ProfileModel extends Model
         'nama_pendek',
         'alamat',
         'nomor_telepon',
+        'nomor_whatsapp',
+        'telegram',
         'nomor_fax',
         'email',
         'link_satker',
