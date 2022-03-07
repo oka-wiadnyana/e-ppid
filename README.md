@@ -37,7 +37,7 @@ Selain fitur dasar keterbukaan informasi dan permohonan informasi serta keberata
 8. Untuk mulai menggunakan aplikasi silahkan masuk terlebih dahulu ke dashboar admin pada alamt http://localhost/nama_root_folder/admineppid
 9. Masukkan email **onsdee86@gmail.com** dan password **12345** (untuk selanjutnya agar dirubah)
 
-
+Untuk versi full (tanpa composer install) : [link](https://drive.google.com/file/d/1gRMBhLpIv3X2xFVMs-n7etVPIwxODeE0/view?usp=sharing)
 
 Feel free to contact me :
 
