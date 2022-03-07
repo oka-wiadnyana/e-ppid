@@ -11,6 +11,15 @@
             <form action="<?= base_url('admineppid/tolak_permohonan'); ?>" method="post">
                 <?= csrf_field(); ?>
                 <div class="modal-body">
+                    <div class="form-group">
+                        <label for="jenis">Jenis Penolakan</label>
+                        <select class="form-control" id="jenis" name="jenis">
+                            <option value="" selected disabled>Pilih jenis...</option>
+                            <option value="Rahasia">Rahasia</option>
+                            <option value="Belum dikuasai">Belum dikuasai</option>
+                            <option value="Lainnya">Lainnya</option>
+                        </select>
+                    </div>
 
                     <div class="form-group">
                         <label for="jawaban" class="form-label">Alasan Penolakan</label>

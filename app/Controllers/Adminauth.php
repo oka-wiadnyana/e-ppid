@@ -86,15 +86,16 @@ class Adminauth extends BaseController
         }
 
         $password_hash = password_hash($data['password'], PASSWORD_BCRYPT);
-        $nama_foto_profil = "";
+        unset($data['password']);
+        unset($data['password2']);
+
         if (!$foto_profil->getError() == 4) {
             $nama_foto_profil = "Admin-" . time() . "." . $foto_profil->getClientExtension();
             $foto_profil->move('admin/img_profile', $nama_foto_profil);
+            $data_insert = array_merge($data, ['password' => $password_hash, 'foto_profil' => $nama_foto_profil]);
+        } else {
+            $data_insert = array_merge($data, ['password' => $password_hash]);
         }
-
-        unset($data['password']);
-        unset($data['password2']);
-        $data_insert = array_merge($data, ['password' => $password_hash, 'foto_profil' => $nama_foto_profil]);
 
         if ($this->adminauthModel->insert($data_insert)) {
             session()->setFlashdata('success', 'Registrasi admin berhasil');
@@ -169,7 +170,9 @@ class Adminauth extends BaseController
     {
         $id = $this->request->getVar('id');
         $foto = $this->request->getVar('foto');
-        unlink(ROOTPATH . 'public/admin/img_profile/' . $foto);
+        if ($foto != 'no-profil.jpg') {
+            unlink(ROOTPATH . 'public/admin/img_profile/' . $foto);
+        }
         if ($this->adminauthModel->delete($id)) {
             session()->setFlashdata('success', 'Data berhasil dihapus');
             return $this->response->setJson(['msg' => 'success']);

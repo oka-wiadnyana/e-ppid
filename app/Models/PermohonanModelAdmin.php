@@ -121,7 +121,7 @@ class PermohonanModelAdmin extends Model
         return $data;
     }
 
-    public function update_proses($id, $data)
+    public function update_proses($id, $data, $jenis = null)
     {
         $data_exist = $this->db->table('proses_permohonan')
             ->where('permohonan_id', $id)->countAllResults();
@@ -136,9 +136,14 @@ class PermohonanModelAdmin extends Model
                 ->insert($data_insert);
         }
 
+        if ($jenis == 'tolak') {
+            $status = 'Permohonan ditolak';
+        } else {
+            $status = 'Sudah ditindaklanjuti';
+        }
         $this->db->table($this->table)
             ->where('id', $id)
-            ->update(['status' => 'Sudah ditindaklanjuti']);
+            ->update(['status' => $status]);
 
         return true;
     }
@@ -149,5 +154,272 @@ class PermohonanModelAdmin extends Model
             ->where('permohonan_id', $id)
             ->get()->getResultArray();
         return $data;
+    }
+
+    public function get_data_permohonan_perkara($month, $year)
+    {
+        $jumlah_permohonan_perkara = $this->db->table($this->table)->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 1)
+            ->countAllResults();
+        $jml_perkara_sepenuhnya = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 1)
+            ->where('status_jawaban', 'Sepenuhnya')
+            ->countAllResults();
+        $jml_perkara_sebagian = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 1)
+            ->where('status_jawaban', 'Sebagian')
+            ->countAllResults();
+        $jml_perkara_tolak = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 1)
+            ->where('status_jawaban', null)
+            ->countAllResults();
+        $jml_perkara_tolak_rahasia = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 1)
+            ->where('jenis_penolakan', 'Rahasia')
+            ->countAllResults();
+        $jml_perkara_tolak_belum_kuasai = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 1)
+            ->where('jenis_penolakan', 'Belum dikuasai')
+            ->countAllResults();
+        $jml_perkara_tolak_lainnya = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 1)
+            ->where('jenis_penolakan', 'Belum dikuasai')
+            ->countAllResults();
+        $dataLaporanPerkara = [$jumlah_permohonan_perkara, $jml_perkara_sepenuhnya, $jml_perkara_sebagian, $jml_perkara_tolak, $jml_perkara_tolak_rahasia, $jml_perkara_tolak_belum_kuasai, $jml_perkara_tolak_lainnya];
+
+
+
+        return $dataLaporanPerkara;
+    }
+
+    public function get_data_permohonan_kepegawaian($month, $year)
+    {
+        $jumlah_permohonan_kepegawaian = $this->db->table($this->table)->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 2)
+            ->countAllResults();
+        $jml_kepegawaian_sepenuhnya = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 2)
+            ->where('status_jawaban', 'Sepenuhnya')
+            ->countAllResults();
+        $jml_kepegawaian_sebagian = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 2)
+            ->where('status_jawaban', 'Sebagian')
+            ->countAllResults();
+        $jml_kepegawaian_tolak = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 2)
+            ->where('status_jawaban', null)
+            ->countAllResults();
+        $jml_kepegawaian_tolak_rahasia = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 2)
+            ->where('jenis_penolakan', 'Rahasia')
+            ->countAllResults();
+        $jml_kepegawaian_tolak_belum_kuasai = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 2)
+            ->where('jenis_penolakan', 'Belum dikuasai')
+            ->countAllResults();
+        $jml_kepegawaian_tolak_lainnya = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 2)
+            ->where('jenis_penolakan', 'Belum dikuasai')
+            ->countAllResults();
+        $dataLaporanKepegawaian = [$jumlah_permohonan_kepegawaian, $jml_kepegawaian_sepenuhnya, $jml_kepegawaian_sebagian, $jml_kepegawaian_tolak, $jml_kepegawaian_tolak_rahasia, $jml_kepegawaian_tolak_belum_kuasai, $jml_kepegawaian_tolak_lainnya];
+
+        return $dataLaporanKepegawaian;
+    }
+
+    public function get_data_permohonan_pengawasan($month, $year)
+    {
+        $jumlah_permohonan_pengawasan = $this->db->table($this->table)->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 3)
+            ->countAllResults();
+        $jml_pengawasan_sepenuhnya = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 3)
+            ->where('status_jawaban', 'Sepenuhnya')
+            ->countAllResults();
+        $jml_pengawasan_sebagian = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 3)
+            ->where('status_jawaban', 'Sebagian')
+            ->countAllResults();
+        $jml_pengawasan_tolak = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 3)
+            ->where('status_jawaban', null)
+            ->countAllResults();
+        $jml_pengawasan_tolak_rahasia = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 3)
+            ->where('jenis_penolakan', 'Rahasia')
+            ->countAllResults();
+        $jml_pengawasan_tolak_belum_kuasai = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 3)
+            ->where('jenis_penolakan', 'Belum dikuasai')
+            ->countAllResults();
+        $jml_pengawasan_tolak_lainnya = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 3)
+            ->where('jenis_penolakan', 'Belum dikuasai')
+            ->countAllResults();
+        $dataLaporanPengawasan = [$jumlah_permohonan_pengawasan, $jml_pengawasan_sepenuhnya, $jml_pengawasan_sebagian, $jml_pengawasan_tolak, $jml_pengawasan_tolak_rahasia, $jml_pengawasan_tolak_belum_kuasai, $jml_pengawasan_tolak_lainnya];
+
+        return $dataLaporanPengawasan;
+    }
+
+    public function get_data_permohonan_anggaran($month, $year)
+    {
+        $jumlah_permohonan_anggaran = $this->db->table($this->table)->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 4)
+            ->countAllResults();
+        $jml_anggaran_sepenuhnya = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 4)
+            ->where('status_jawaban', 'Sepenuhnya')
+            ->countAllResults();
+        $jml_anggaran_sebagian = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 4)
+            ->where('status_jawaban', 'Sebagian')
+            ->countAllResults();
+        $jml_anggaran_tolak = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 4)
+            ->where('status_jawaban', null)
+            ->countAllResults();
+        $jml_anggaran_tolak_rahasia = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 4)
+            ->where('jenis_penolakan', 'Rahasia')
+            ->countAllResults();
+        $jml_anggaran_tolak_belum_kuasai = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 4)
+            ->where('jenis_penolakan', 'Belum dikuasai')
+            ->countAllResults();
+        $jml_anggaran_tolak_lainnya = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 4)
+            ->where('jenis_penolakan', 'Belum dikuasai')
+            ->countAllResults();
+        $dataLaporanAnggaran = [$jumlah_permohonan_anggaran, $jml_anggaran_sepenuhnya, $jml_anggaran_sebagian, $jml_anggaran_tolak, $jml_anggaran_tolak_rahasia, $jml_anggaran_tolak_belum_kuasai, $jml_anggaran_tolak_lainnya];
+
+        return $dataLaporanAnggaran;
+    }
+
+    public function get_data_permohonan_lainnya($month, $year)
+    {
+        $jumlah_permohonan_lainnya = $this->db->table($this->table)->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 4)
+            ->countAllResults();
+        $jml_lainnya_sepenuhnya = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 4)
+            ->where('status_jawaban', 'Sepenuhnya')
+            ->countAllResults();
+        $jml_lainnya_sebagian = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 4)
+            ->where('status_jawaban', 'Sebagian')
+            ->countAllResults();
+        $jml_lainnya_tolak = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 4)
+            ->where('status_jawaban', null)
+            ->countAllResults();
+        $jml_lainnya_tolak_rahasia = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 4)
+            ->where('jenis_penolakan', 'Rahasia')
+            ->countAllResults();
+        $jml_lainnya_tolak_belum_kuasai = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 4)
+            ->where('jenis_penolakan', 'Belum dikuasai')
+            ->countAllResults();
+        $jml_lainnya_tolak_lainnya = $this->db->table($this->table)
+            ->join('proses_permohonan', $this->table . '.id=proses_permohonan.permohonan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 4)
+            ->where('jenis_penolakan', 'Belum dikuasai')
+            ->countAllResults();
+        $dataLaporanLainnya = [$jumlah_permohonan_lainnya, $jml_lainnya_sepenuhnya, $jml_lainnya_sebagian, $jml_lainnya_tolak, $jml_lainnya_tolak_rahasia, $jml_lainnya_tolak_belum_kuasai, $jml_lainnya_tolak_lainnya];
+
+        return $dataLaporanLainnya;
     }
 }

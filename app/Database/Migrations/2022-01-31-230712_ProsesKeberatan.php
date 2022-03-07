@@ -20,7 +20,7 @@ class ProsesKeberatan extends Migration
                 'constraint'     => 5,
                 'unsigned'       => true,
             ],
-            'proses'       => [
+            'status'       => [
                 'type'       => 'VARCHAR',
                 'constraint' => 250,
                 'null' => true,

@@ -30,7 +30,11 @@ class ProsesPermohonan extends Migration
                 'constraint'       => 250,
                 'null' => true,
             ],
-
+            'jenis_penolakan'       => [
+                'type'       => 'VARCHAR',
+                'constraint'       => 250,
+                'null' => true,
+            ],
             'jawaban'       => [
                 'type'       => 'TEXT',
                 'null' => true,

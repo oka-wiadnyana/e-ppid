@@ -13,6 +13,11 @@
       <h3><i class="fas fa-tachometer-alt mr-2"></i>PERMOHONAN BARU</h3>
     </div>
   </div>
+  <div class="row">
+    <div class="col">
+      <a href="" class="btn btn-primary mt-2 mb-3 btn-cetak">Cetak Laporan</a>
+    </div>
+  </div>
 
   <div class="table-wrapper">
     <table class="table table-bordered border-secondary" id="data_permohonan">
@@ -196,6 +201,19 @@
         });
       })
     });
+
+    $('.btn-cetak').click(function(e) {
+      e.preventDefault();
+      $.ajax({
+        url: "<?= base_url('admineppid/modal_cetak_lap_permohonan'); ?>",
+        dataType: "json",
+
+      }).done(function(res) {
+        $('#modal').html(res);
+        $('#modal_cetak_lap_permohonan').modal('show');
+        console.log(res);
+      });;
+    })
   </script>
 
   <?= $this->endSection(); ?>

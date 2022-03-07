@@ -78,4 +78,17 @@ class AdminauthModel extends Model
         $tbl_storage = $this->dt;
         return $tbl_storage->countAllResults();
     }
+
+    public function get_data_ttd()
+    {
+        $ppid_kepaniteraan = $this->db->table($this->table)
+            ->where('jabatan', 'PPID Kepaniteraan')->get()->getRowArray();
+
+        $ppid_kesekretariatan = $this->db->table($this->table)
+            ->where('jabatan', 'PPID Kesekretariatan')->get()->getRowArray();
+
+        $pejabat = ['PPID_Kepaniteraan' => $ppid_kepaniteraan, 'PPID_Kesekretariatan' => $ppid_kesekretariatan];
+
+        return $pejabat;
+    }
 }

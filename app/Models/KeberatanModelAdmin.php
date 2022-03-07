@@ -128,4 +128,154 @@ class KeberatanModelAdmin extends Model
 
         return true;
     }
+
+    public function get_data_keberatan_perkara($month, $year)
+    {
+        $jumlah_keberatan_perkara = $this->db->table($this->table)
+            ->join('permohonan', $this->table . '.permohonan_id=permohonan.id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 1)
+            ->countAllResults();
+        $jml_tanggapan_menerima =  $this->db->table($this->table)
+            ->join('permohonan', $this->table . '.permohonan_id=permohonan.id')
+            ->join('proses_keberatan', $this->table . '.id=proses_keberatan.keberatan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 1)
+            ->where('proses_keberatan.status', 'Menerima')
+            ->countAllResults();
+        $jml_tanggapan_menolak =  $this->db->table($this->table)
+            ->join('permohonan', $this->table . '.permohonan_id=permohonan.id')
+            ->join('proses_keberatan', $this->table . '.id=proses_keberatan.keberatan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 1)
+            ->where('proses_keberatan.status', 'Menolak')
+            ->countAllResults();
+
+        $dataKeberatanPerkara = [$jumlah_keberatan_perkara, $jml_tanggapan_menerima, $jml_tanggapan_menolak];
+
+        return $dataKeberatanPerkara;
+    }
+
+    public function get_data_keberatan_kepegawaian($month, $year)
+    {
+        $jumlah_keberatan_kepegawaian = $this->db->table($this->table)
+            ->join('permohonan', $this->table . '.permohonan_id=permohonan.id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 2)
+            ->countAllResults();
+        $jml_tanggapan_menerima =  $this->db->table($this->table)
+            ->join('permohonan', $this->table . '.permohonan_id=permohonan.id')
+            ->join('proses_keberatan', $this->table . '.id=proses_keberatan.keberatan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 2)
+            ->where('proses_keberatan.status', 'Menerima')
+            ->countAllResults();
+        $jml_tanggapan_menolak =  $this->db->table($this->table)
+            ->join('permohonan', $this->table . '.permohonan_id=permohonan.id')
+            ->join('proses_keberatan', $this->table . '.id=proses_keberatan.keberatan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 2)
+            ->where('proses_keberatan.status', 'Menolak')
+            ->countAllResults();
+
+        $dataKeberatanKepegawaian = [$jumlah_keberatan_kepegawaian, $jml_tanggapan_menerima, $jml_tanggapan_menolak];
+
+        return $dataKeberatanKepegawaian;
+    }
+
+    public function get_data_keberatan_pengawasan($month, $year)
+    {
+        $jumlah_keberatan_pengawasan = $this->db->table($this->table)
+            ->join('permohonan', $this->table . '.permohonan_id=permohonan.id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 3)
+            ->countAllResults();
+        $jml_tanggapan_menerima =  $this->db->table($this->table)
+            ->join('permohonan', $this->table . '.permohonan_id=permohonan.id')
+            ->join('proses_keberatan', $this->table . '.id=proses_keberatan.keberatan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 3)
+            ->where('proses_keberatan.status', 'Menerima')
+            ->countAllResults();
+        $jml_tanggapan_menolak =  $this->db->table($this->table)
+            ->join('permohonan', $this->table . '.permohonan_id=permohonan.id')
+            ->join('proses_keberatan', $this->table . '.id=proses_keberatan.keberatan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 3)
+            ->where('proses_keberatan.status', 'Menolak')
+            ->countAllResults();
+
+        $dataKeberatanPengawasan = [$jumlah_keberatan_pengawasan, $jml_tanggapan_menerima, $jml_tanggapan_menolak];
+
+        return $dataKeberatanPengawasan;
+    }
+
+    public function get_data_keberatan_anggaran($month, $year)
+    {
+        $jumlah_keberatan_anggaran = $this->db->table($this->table)
+            ->join('permohonan', $this->table . '.permohonan_id=permohonan.id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 4)
+            ->countAllResults();
+        $jml_tanggapan_menerima =  $this->db->table($this->table)
+            ->join('permohonan', $this->table . '.permohonan_id=permohonan.id')
+            ->join('proses_keberatan', $this->table . '.id=proses_keberatan.keberatan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 4)
+            ->where('keberatan.status', 'Menerima')
+            ->countAllResults();
+        $jml_tanggapan_menolak =  $this->db->table($this->table)
+            ->join('permohonan', $this->table . '.permohonan_id=permohonan.id')
+            ->join('proses_keberatan', $this->table . '.id=proses_keberatan.keberatan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 4)
+            ->where('keberatan.status', 'Menolak')
+            ->countAllResults();
+
+        $dataKeberatanAnggaran = [$jumlah_keberatan_anggaran, $jml_tanggapan_menerima, $jml_tanggapan_menolak];
+
+        return $dataKeberatanAnggaran;
+    }
+
+    public function get_data_keberatan_lainnya($month, $year)
+    {
+        $jumlah_keberatan_lainnya = $this->db->table($this->table)
+            ->join('permohonan', $this->table . '.permohonan_id=permohonan.id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 5)
+            ->countAllResults();
+        $jml_tanggapan_menerima =  $this->db->table($this->table)
+            ->join('permohonan', $this->table . '.permohonan_id=permohonan.id')
+            ->join('proses_keberatan', $this->table . '.id=proses_keberatan.keberatan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 5)
+            ->where('keberatan.status', 'Menerima')
+            ->countAllResults();
+        $jml_tanggapan_menolak =  $this->db->table($this->table)
+            ->join('permohonan', $this->table . '.permohonan_id=permohonan.id')
+            ->join('proses_keberatan', $this->table . '.id=proses_keberatan.keberatan_id')
+            ->where('MONTH(tanggal_permohonan)', $month)
+            ->where('YEAR(tanggal_permohonan)', $year)
+            ->where('id_jenis_informasi', 5)
+            ->where('keberatan.status', 'Menolak')
+            ->countAllResults();
+
+        $dataKeberatanLainnya = [$jumlah_keberatan_lainnya, $jml_tanggapan_menerima, $jml_tanggapan_menolak];
+
+        return $dataKeberatanLainnya;
+    }
 }

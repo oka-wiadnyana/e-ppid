@@ -1485,12 +1485,19 @@ class Admineppid extends BaseController
 
     public function tolak_permohonan()
     {
+        $jenis = $this->request->getVar('jenis');
         $jawaban = $this->request->getVar('jawaban');
 
         $id = $this->request->getVar('id');
         $user_email = $this->request->getVar('email');
 
         if (!$this->validate([
+            'jenis' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Jenis penolakan harus diisi'
+                ]
+            ],
             'jawaban' => [
                 'rules' => 'required',
                 'errors' => [
@@ -1505,10 +1512,11 @@ class Admineppid extends BaseController
 
         $data = [
             'proses' => 'T',
+            'jenis_penolakan' => $jenis,
             'jawaban' => $jawaban,
         ];
 
-        if ($this->permohonanModel->update_proses($id, $data)) {
+        if ($this->permohonanModel->update_proses($id, $data, 'tolak')) {
 
             $data_permohonan = $this->permohonanModel->find_data($id);
             $email_admin = $this->profilSatkerModel->first()['email'];
@@ -1647,6 +1655,7 @@ class Admineppid extends BaseController
     public function proses_keberatan()
     {
 
+        $status = $this->request->getVar('status');
         $tanggapan = $this->request->getVar('tanggapan');
         $id = $this->request->getVar('id');
         // $data_keberatan = $this->keberatanModel->find_data($id);
@@ -1658,6 +1667,12 @@ class Admineppid extends BaseController
                 'errors' => [
                     'required' => 'Jawaban harus diisi'
                 ]
+            ],
+            'status' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Status harus diisi'
+                ]
             ]
         ])) {
 
@@ -1666,6 +1681,7 @@ class Admineppid extends BaseController
         }
 
         $data = [
+            'status' => $status,
             'tanggapan' => $tanggapan,
             'keberatan_id' => $id,
         ];
@@ -3084,5 +3100,150 @@ class Admineppid extends BaseController
         ];
 
         return $this->response->setJSON([view('admin/modal/edituser', $data)]);
+    }
+
+    public function modal_cetak_lap_permohonan()
+    {
+
+        return $this->response->setJSON([view('admin/modal/cetaklaporanpermohonan')]);
+    }
+
+    public function cetak_laporan_permohonan()
+    {
+        helper('idndate_helper');
+
+        $bulan = $this->request->getVar('bulan');
+        $tahun = $this->request->getVar('tahun');
+        $kota = $this->request->getVar('kota');
+        $tanggal = $this->request->getVar('tanggal');
+        $helper_bulan = idndate($tahun . '-' . $bulan . '-1');
+        $tanggal = idndate($tanggal);
+
+        $jmlPermohonanPerkara = $this->permohonanModel->get_data_permohonan_perkara($bulan, $tahun);
+        $jmlPermohonanKepegawaian = $this->permohonanModel->get_data_permohonan_kepegawaian($bulan, $tahun);
+        $jmlPermohonanPengawasan = $this->permohonanModel->get_data_permohonan_pengawasan($bulan, $tahun);
+        $jmlPermohonanAnggaran = $this->permohonanModel->get_data_permohonan_anggaran($bulan, $tahun);
+        $jmlPermohonanLainnya = $this->permohonanModel->get_data_permohonan_lainnya($bulan, $tahun);
+
+        $pejabat = $this->adminauthModel->get_data_ttd();
+
+        $data = [
+            'jml_permohonan_perkara' => $jmlPermohonanPerkara,
+            'jml_permohonan_kepegawaian' => $jmlPermohonanKepegawaian,
+            'jml_permohonan_pengawasan' => $jmlPermohonanPengawasan,
+            'jml_permohonan_anggaran' => $jmlPermohonanAnggaran,
+            'jml_permohonan_lainnya' => $jmlPermohonanLainnya,
+            'bulan' => $helper_bulan['bln'],
+            'tahun' => $tahun,
+            'panitera' => $pejabat['PPID_Kepaniteraan'],
+            'sekretaris' => $pejabat['PPID_Kesekretariatan'],
+            'kota' => $kota,
+            'tanggal' => $tanggal['tanggal'],
+        ];
+
+        $cetak = view('admin/laporanpermohonan', $data);
+
+        $mpdf = new \Mpdf\Mpdf(['orientation' => 'L']);
+
+
+        $mpdf->WriteHTML($cetak);
+        $this->response->setContentType('application/pdf');
+
+        $mpdf->Output("data.pdf", "I");
+    }
+
+    public function modal_cetak_lap_keberatan()
+    {
+
+        return $this->response->setJSON([view('admin/modal/cetaklaporankeberatan')]);
+    }
+
+    public function cetak_laporan_keberatan()
+    {
+        helper('idndate_helper');
+
+        $bulan = $this->request->getVar('bulan');
+        $tahun = $this->request->getVar('tahun');
+        $kota = $this->request->getVar('kota');
+        $tanggal = $this->request->getVar('tanggal');
+        $helper_bulan = idndate($tahun . '-' . $bulan . '-1');
+        $tanggal = idndate($tanggal);
+
+        $perk_sengketa =  $this->request->getVar('perk_sengketa');
+        $perk_berhasil =  $this->request->getVar('perk_berhasil');
+        $perk_gagal =  $this->request->getVar('perk_gagal');
+        $perk_menguatkan =  $this->request->getVar('perk_menguatkan');
+        $perk_menolak =  $this->request->getVar('perk_menolak');
+
+        $komisiPerkara = [$perk_sengketa, $perk_berhasil, $perk_gagal, $perk_menguatkan, $perk_menolak];
+
+        $kepeg_sengketa =  $this->request->getVar('kepeg_sengketa');
+        $kepeg_berhasil =  $this->request->getVar('kepeg_berhasil');
+        $kepeg_gagal =  $this->request->getVar('kepeg_gagal');
+        $kepeg_menguatkan =  $this->request->getVar('kepeg_menguatkan');
+        $kepeg_menolak =  $this->request->getVar('kepeg_menolak');
+
+        $komisiKepegawaian = [$kepeg_sengketa, $kepeg_berhasil, $kepeg_gagal, $kepeg_menguatkan, $kepeg_menolak];
+
+        $peng_sengketa =  $this->request->getVar('peng_sengketa');
+        $peng_berhasil =  $this->request->getVar('peng_berhasil');
+        $peng_gagal =  $this->request->getVar('peng_gagal');
+        $peng_menguatkan =  $this->request->getVar('peng_menguatkan');
+        $peng_menolak =  $this->request->getVar('peng_menolak');
+
+        $komisiPengawasan = [$peng_sengketa, $peng_berhasil, $peng_gagal, $peng_menguatkan, $peng_menolak];
+
+        $ang_sengketa =  $this->request->getVar('ang_sengketa');
+        $ang_berhasil =  $this->request->getVar('ang_berhasil');
+        $ang_gagal =  $this->request->getVar('ang_gagal');
+        $ang_menguatkan =  $this->request->getVar('ang_menguatkan');
+        $ang_menolak =  $this->request->getVar('ang_menolak');
+
+        $komisiAnggaran = [$ang_sengketa, $ang_berhasil, $ang_gagal, $ang_menguatkan, $ang_menolak];
+
+        $lain_sengketa =  $this->request->getVar('lain_sengketa');
+        $lain_berhasil =  $this->request->getVar('lain_berhasil');
+        $lain_gagal =  $this->request->getVar('lain_gagal');
+        $lain_menguatkan =  $this->request->getVar('lain_menguatkan');
+        $lain_menolak =  $this->request->getVar('lain_menolak');
+
+        $komisiLainnya = [$lain_sengketa, $lain_berhasil, $lain_gagal, $lain_menguatkan, $lain_menolak];
+
+        $jmlKeberatanPerkara = $this->keberatanModel->get_data_keberatan_perkara($bulan, $tahun);
+        $jmlKeberatanKepegawaian = $this->keberatanModel->get_data_keberatan_kepegawaian($bulan, $tahun);
+        $jmlKeberatanPengawasan = $this->keberatanModel->get_data_keberatan_pengawasan($bulan, $tahun);
+
+        $jmlKeberatanAnggaran = $this->keberatanModel->get_data_keberatan_anggaran($bulan, $tahun);
+        $jmlKeberatanLainnya = $this->keberatanModel->get_data_keberatan_lainnya($bulan, $tahun);
+        $pejabat = $this->adminauthModel->get_data_ttd();
+
+        $data = [
+            'jml_keberatan_perkara' => $jmlKeberatanPerkara,
+            'komisi_perkara' => $komisiPerkara,
+            'komisi_kepegawaian' => $komisiKepegawaian,
+            'komisi_pengawasan' => $komisiPengawasan,
+            'komisi_anggaran' => $komisiAnggaran,
+            'komisi_lainnya' => $komisiLainnya,
+            'jml_keberatan_kepegawaian' => $jmlKeberatanKepegawaian,
+            'jml_keberatan_pengawasan' => $jmlKeberatanPengawasan,
+            'jml_keberatan_anggaran' => $jmlKeberatanAnggaran,
+            'jml_keberatan_lainnya' => $jmlKeberatanLainnya,
+            'bulan' => $helper_bulan['bln'],
+            'tahun' => $tahun,
+            'panitera' => $pejabat['PPID_Kepaniteraan'],
+            'sekretaris' => $pejabat['PPID_Kesekretariatan'],
+            'kota' => $kota,
+            'tanggal' => $tanggal['tanggal'],
+        ];
+
+        $cetak = view('admin/laporankeberatan', $data);
+
+        $mpdf = new \Mpdf\Mpdf(['orientation' => 'L']);
+
+
+        $mpdf->WriteHTML($cetak);
+        $this->response->setContentType('application/pdf');
+
+        $mpdf->Output("data.pdf", "I");
     }
 }

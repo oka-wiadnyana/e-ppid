@@ -1,63 +1,44 @@
-# CodeIgniter 4 Application Starter
+# Aplikasi E-PPID
 
-## What is CodeIgniter?
+Aplikasi ini adalah aplikasi untuk meningkatkan kualitas keterbukaan informasi pada satuan kerja. Aplikasi ini dilengkapi dengan permohonan informasi secara elektronik untuk memudahkan masyarakat mengajukan permohonan informasi sekaligus pemohonan keberatan atas tanggapan informasi. Aplikasi ini juga dapat mencetak laporan bulanan terkait permohonan informasi dan keberatan
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](http://codeigniter.com).
+Project ini dibuat menggunakan framework _Codeigniter 4_, dan untuk halaman user mengguganakan template _Anyar_ dari BootstrapMade sedangkan CMS nya menggunakan template admin _Gentelella alela_.
 
-This repository holds a composer-installable app starter.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+Demo : http://eppid.ozavo.my.id
 
-More information about the plans for version 4 can be found in [the announcement](http://forum.codeigniter.com/thread-62615.html) on the forums.
+## Feature
 
-The user guide corresponding to this version of the framework can be found
-[here](https://codeigniter4.github.io/userguide/).
+Selain fitur dasar keterbukaan informasi dan permohonan informasi serta keberatan, landing page ini juga menggunakan fitur text to speech dengen SpeechSynthesisAPI Javascript. Aksesibilitas disabilitas menggunakan aksesibilitas _Userway_. Untuk fitur livechat nya menggunakan widget dari [tawk.to](https://www.tawk.to/). Silahkan daftar pada website tersebut, dan replace script widget tawk.to yang ada sebelum tutup body. Selain itu setiap tahapan pemrosesan permohonan, akan terdapat notifikasi email ke admin dan user.
 
-## Installation & updates
+## How to use?
 
-`composer create-project codeigniter4/appstarter` then `composer update` whenever
-there is a new release of the framework.
+(Development)
+1. Instal composer [disini](https://getcomposer.org/download/). (Skip langkah ini apabila pada system operasi sudah terinstall composer)
+2. Download repo ini kemudian buka terminal dan arahkan ke repo hasil download dan ketikkan
+   >composer install
+3. Buat database terlebih dahulu di local webserver
+4. Import database yang disertakan dalam repo ini
+5. Untuk development, silahkan copykan folder project ke local web server(htdocs (XAMPP), www(laragon), etc),
+6. Copy file env dalam repo dan rename menjadi .env melalui **Text Editor**, dan rubah environment serta baseurl pada file .env menjadi
+   ```html
+   CI_ENVIRONMENT = development
 
-When updating, check the release notes to see if there are any changes you might need to apply
-to your `app` folder. The affected files can be copied or merged from
-`vendor/codeigniter4/framework/app`.
+   app.baseURL = 'http://localhost/nama_root_folder/public/'
+   ```
+7. Setting database dalam file .env sesuai dengan dengan konfigurasi databse yang telah diimport sebelumnya, contoh :
+   ```html
+database.default.hostname = localhost
+database.default.database = eppid
+database.default.username = root
+database.default.password = 
+database.default.DBDriver = MySQLi
+database.default.DBPrefix =
+   ```
+8. Untuk mulai menggunakan aplikasi silahkan masuk terlebih dahulu ke dashboar admin pada alamt http://localhost/nama_root_folder/admineppid
+9. Masukkan email **onsdee86@gmail.com** dan password **12345** (untuk selanjutnya agar dirubah)
 
-## Setup
 
-Copy `env` to `.env` and tailor for your app, specifically the baseURL
-and any database settings.
 
-## Important Change with index.php
+Feel free to contact me :
 
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
-
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
-
-**Please** read the user guide for a better explanation of how CI4 works!
-
-## Repository Management
-
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
-
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
-
-## Server Requirements
-
-PHP version 7.3 or higher is required, with the following extensions installed:
-
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
-
-Additionally, make sure that the following extensions are enabled in your PHP:
-
-- json (enabled by default - don't turn it off)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php)
-- xml (enabled by default - don't turn it off)
+**Telegram** : @Okawiadnyana

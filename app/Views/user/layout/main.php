@@ -106,7 +106,60 @@
     <?php endif; ?>
   </script>
 
+  <script src="<?= base_url('anyar/assets/js/speech2.js'); ?>" defer class="scr-speech"></script>
 
+  <script>
+    $(document).ready(function() {
+      console.log(JSON.parse(window.sessionStorage.getItem('speech')));
+      if (JSON.parse(window.sessionStorage.getItem('speech')) == null) {
+        Swal.fire({
+          title: 'Text To Speech',
+          text: "Ijinkan website E-PPID memainkan suara?",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Ya, mainkan!',
+          cancelButtonText: 'Jangan mainkan!'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.sessionStorage.setItem('speech', true)
+            beginSpeech();
+          } else {
+            window.sessionStorage.setItem('speech', false)
+          }
+        })
+      } else if (JSON.parse(window.sessionStorage.getItem('speech')) == true) {
+        onSpeech();
+      }
+
+    });
+  </script>
+
+  <!--Start of Tawk.to Script-->
+  <script type="text/javascript">
+    var Tawk_API = Tawk_API || {},
+      Tawk_LoadStart = new Date();
+    (function() {
+      var s1 = document.createElement("script"),
+        s0 = document.getElementsByTagName("script")[0];
+      s1.async = true;
+      s1.src = 'https://embed.tawk.to/61022a8c649e0a0a5cce6fcc/1fbo7ce8i';
+      s1.charset = 'UTF-8';
+      s1.setAttribute('crossorigin', '*');
+      s0.parentNode.insertBefore(s1, s0);
+    })();
+  </script>
+  <!--End of Tawk.to Script-->
+
+  <script>
+    (function(d) {
+      var s = d.createElement("script");
+      s.setAttribute("data-account", "mGaLcI2pB7");
+      s.setAttribute("src", "https://cdn.userway.org/widget.js");
+      (d.body || d.head).appendChild(s);
+    })(document)
+  </script><noscript>Please ensure Javascript is enabled for purposes of <a href="https://userway.org">website accessibility</a></noscript>
 </body>
 
 </html>
