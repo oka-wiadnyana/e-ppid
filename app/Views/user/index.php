@@ -9,7 +9,7 @@
          <div class="carousel-item active">
              <div class="carousel-container">
                  <h2 class="animate__animated animate__fadeInDown">Selamat datang di <span>E-PPID</span></h2>
-                 <p class="animate__animated animate__fadeInUp">E-PPID merupakan media layanan informasi, sebagai bentuk keterbukaan informasi publik Pengadilan Negeri Bangli dan amanat Undang-Undang Nomor 14 Tahun 2008 tentang Keterbukaan Informasi Publik</p>
+                 <p class="animate__animated animate__fadeInUp">E-PPID merupakan media layanan informasi, sebagai bentuk keterbukaan informasi publik <?= ucwords(session()->get('profil_nama')); ?> dan amanat Undang-Undang Nomor 14 Tahun 2008 tentang Keterbukaan Informasi Publik</p>
              </div>
          </div>
 
@@ -17,7 +17,7 @@
          <div class="carousel-item">
              <div class="carousel-container">
                  <h2 class="animate__animated animate__fadeInDown">Permohonan Informasi Elektronik</h2>
-                 <p class="animate__animated animate__fadeInUp">E-PPID dilengkapi dengan fitur permohonan informasi secara elektronik, sehingga dapat memudahkan masyarakat untuk mendapatkan informasi sesuai dengan yang diinginkan dari Pengadilan Negeri Bangli</p>
+                 <p class="animate__animated animate__fadeInUp">E-PPID dilengkapi dengan fitur permohonan informasi secara elektronik, sehingga dapat memudahkan masyarakat untuk mendapatkan informasi sesuai dengan yang diinginkan dari <?= ucwords(session()->get('profil_nama')); ?></p>
              </div>
          </div>
 
