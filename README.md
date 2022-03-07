@@ -27,12 +27,12 @@ Selain fitur dasar keterbukaan informasi dan permohonan informasi serta keberata
    ```
 7. Setting database dalam file .env sesuai dengan dengan konfigurasi databse yang telah diimport sebelumnya, contoh :
    ```html
-database.default.hostname = localhost
-database.default.database = eppid
-database.default.username = root
-database.default.password = 
-database.default.DBDriver = MySQLi
-database.default.DBPrefix =
+      database.default.hostname = localhost
+      database.default.database = eppid
+      database.default.username = root
+      database.default.password = 
+      database.default.DBDriver = MySQLi
+      database.default.DBPrefix =
    ```
 8. Untuk mulai menggunakan aplikasi silahkan masuk terlebih dahulu ke dashboar admin pada alamt http://localhost/nama_root_folder/admineppid
 9. Masukkan email **onsdee86@gmail.com** dan password **12345** (untuk selanjutnya agar dirubah)
