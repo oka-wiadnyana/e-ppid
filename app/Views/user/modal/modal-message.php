@@ -8,11 +8,11 @@
             <div class="modal-body">
                 <div class="card">
                     <div class="card-header bg-info text-light">
-                        Bot PN Bangli
+                        Bot <?= session()->get('profil_nama_pendek'); ?>
                     </div>
                     <div class="card-body">
 
-                        <p class="card-text">Untuk mendapatkan informasi secara cepat, masyarakat dapat menggunakan layanan bot <?= session()->get('profil_nama'); ?>, yang berupa Whatsapp Bot dan Telegram Bot. Untuk menggunakan Whatsapp Bot silahkan ketikkan halo dan kirimkan ke <b><?= session()->get('profil_nomor_whatsapp'); ?></b>. Untuk telegram silahkan kunjungi <b><?= session()->get('profil_telegram'); ?></b> pada aplikasi telegram dan klik mulai</p>
+                        <p class="card-text">Untuk mendapatkan informasi secara cepat, masyarakat dapat menggunakan layanan bot <?= session()->get('profil_nama'); ?>, yang berupa Whatsapp Bot. Untuk menggunakan Whatsapp Bot silahkan ketikkan halo dan kirimkan ke <b><?= session()->get('profil_nomor_whatsapp'); ?></b></p>
 
                     </div>
                 </div>

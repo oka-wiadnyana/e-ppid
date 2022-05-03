@@ -13,7 +13,7 @@ class AdminSeeder extends Seeder
         $email = 'onsdee86@gmail.com';
         $nama = 'Oka';
         $nip = '12345678';
-        $jabatan = 'staf';
+        $jabatan = 'admin';
 
         $data = [
             'nama' => $nama,

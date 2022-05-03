@@ -82,10 +82,10 @@ class AdminauthModel extends Model
     public function get_data_ttd()
     {
         $ppid_kepaniteraan = $this->db->table($this->table)
-            ->where('jabatan', 'PPID Kepaniteraan')->get()->getRowArray();
+            ->where('jabatan', 'PPID Kepaniteraan/Panitera')->get()->getRowArray();
 
         $ppid_kesekretariatan = $this->db->table($this->table)
-            ->where('jabatan', 'PPID Kesekretariatan')->get()->getRowArray();
+            ->where('jabatan', 'PPID Kesekretariatan/Sekretaris')->get()->getRowArray();
 
         $pejabat = ['PPID_Kepaniteraan' => $ppid_kepaniteraan, 'PPID_Kesekretariatan' => $ppid_kesekretariatan];
 

@@ -18,8 +18,8 @@
                 <div class="col-lg-3 col-md-6 footer-links">
                     <h4>Link Terkait</h4>
                     <ul>
-                        <?php if (!empty($link_terkait)) : ?>
-                            <?php foreach ($link_terkait as $d) : ?>
+                        <?php if (session()->has('link_terkait')) : ?>
+                            <?php foreach (session()->get('link_terkait') as $d) : ?>
                                 <li><i class="bx bx-chevron-right"></i> <a href="<?= $d['link'] ?>" target='blank'><?= $d['alias']; ?></a></li>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -29,8 +29,8 @@
                 <div class="col-lg-3 col-md-6 footer-links">
                     <h4>Layanan Elektronik</h4>
                     <ul>
-                        <?php if (!empty($layanan_elektronik)) : ?>
-                            <?php foreach ($layanan_elektronik as $d) : ?>
+                        <?php if (session()->has('layanan_elektronik')) : ?>
+                            <?php foreach (session()->get('layanan_elektronik') as $d) : ?>
                                 <li><i class="bx bx-chevron-right"></i> <a href="<?= $d['link'] ?>" target='blank'><?= $d['alias']; ?></a></li>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -48,8 +48,8 @@
                 </div>
 
                 <div class="col-lg-3 col-md-6 footer-info">
-                    <h3>Tentang E-PPID</h3>
-                    <p>Aplikasi Keterbukaan Informasi Elektronik Pengadilan Negeri Bangli yang dapat digunakan oleh masyarakat untuk mengakses informasi dari Pengadilan Negeri Bangli sesuai peraturan perundang-undangan</p>
+                    <h3>Tentang E-Pelita Informasi </h3>
+                    <p>Aplikasi Keterbukaan Informasi Elektronik <?= ucwords(session()->get('profil_nama')); ?> yang dapat digunakan oleh masyarakat untuk mengakses informasi dari <?= ucwords(session()->get('profil_nama')); ?> sesuai peraturan perundang-undangan</p>
                     <div class="social-links mt-3">
                         <a href="<?= session()->get('profil_link_youtube') ?>" class="twitter"><i class="bx bxl-youtube"></i></a>
                         <a href="<?= session()->get('profil_link_facebook') ?>" class="facebook"><i class="bx bxl-facebook"></i></a>

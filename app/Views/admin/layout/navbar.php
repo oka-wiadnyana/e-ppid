@@ -7,7 +7,7 @@
             <ul class=" navbar-right">
                 <li class="nav-item dropdown open" style="padding-left: 15px;">
                     <a href="javascript:;" class="user-profile dropdown-toggle" aria-haspopup="true" id="navbarDropdown" data-toggle="dropdown" aria-expanded="false">
-                        <img src="<?= base_url('admin/img_profile/' . session()->get('admin_foto')); ?>" alt=""><?= session()->get('admin_nama'); ?>
+                        <img src="<?= base_url('admin/img_profiles/' . session()->get('admin_foto')); ?>" alt=""><?= session()->get('admin_nama'); ?>
                     </a>
                     <div class="dropdown-menu dropdown-usermenu pull-right" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="<?= base_url('adminauth/logout'); ?>"><i class="fa fa-sign-out pull-right"></i> Log Out</a>

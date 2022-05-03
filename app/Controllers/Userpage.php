@@ -23,6 +23,7 @@ class Userpage extends BaseController
     // protected $profil;
     public function __construct()
     {
+
         $this->validation = Services::validation();
         $this->email = Services::email();
         $time = new Time();
@@ -40,7 +41,8 @@ class Userpage extends BaseController
         $this->prasyaratModel = new PrasyaratModel();
 
 
-        session()->remove(['profil_nama', 'profil_nama_pendek', 'profil_alamat', 'profil_nomor_telepon', 'profil_nomor_whatsapp', 'profil_telegram', 'profil_nomor_fax', 'profil_email', 'profil_link_satker', 'profil_link_youtube', 'profil_link_facebook', 'profil_link_instagram', 'profil_link_twitter', 'profil_link_video_dasboard', 'profil_logo']);
+
+        session()->remove(['profil_nama', 'profil_nama_pendek', 'profil_alamat', 'profil_nomor_telepon', 'profil_nomor_whatsapp', 'profil_telegram', 'profil_nomor_fax', 'profil_email', 'profil_link_satker', 'profil_link_youtube', 'profil_link_facebook', 'profil_link_instagram', 'profil_link_twitter', 'profil_link_video_dasboard', 'profil_logo', 'link_terkait', 'layanan_elektronik']);
 
         $this->profil = $this->profileModel->findAll();
 
@@ -48,6 +50,9 @@ class Userpage extends BaseController
 
             $alamatBreak = explode(',', $this->profil[0]['alamat']);
             $alamatBreak = implode(',<br>', $alamatBreak);
+            $db = db_connect();
+            $link_terkait = $db->table('link_terkait')->get()->getResultArray();
+            $layanan_elektronik = $db->table('layanan_elektronik')->get()->getResultArray();
 
             $sessionProfil = [
                 'profil_nama' => $this->profil[0]['nama'],
@@ -65,7 +70,9 @@ class Userpage extends BaseController
                 'profil_link_twitter' => $this->profil[0]['link_twitter'],
                 'profil_link_video_dashboard' => $this->profil[0]['link_video_dashboard'],
                 'profil_logo' => $this->profil[0]['logo'],
-                'profil_alamat_break' => $alamatBreak
+                'profil_alamat_break' => $alamatBreak,
+                'link_terkait' => $link_terkait,
+                'layanan_elektronik' => $layanan_elektronik
             ];
         } else {
             $sessionProfil = [
@@ -84,10 +91,14 @@ class Userpage extends BaseController
                 'profil_link_twitter' => 'Belum diset',
                 'profil_link_video_dashboard' => 'Belum diset',
                 'profil_logo' => 'Belum diset',
-                'profil_alamat_break' => 'Belum diset'
+                'profil_alamat_break' => 'Belum diset',
+                'layanan_elektronik' => 'Belum diset',
+                'link_terkait' => 'Belum diset'
             ];
         }
         session()->set($sessionProfil);
+
+        helper('mailer_helper');
     }
 
     public function index()
@@ -96,7 +107,7 @@ class Userpage extends BaseController
         // $profil = $this->profileModel->findAll();
         // // dd($profil[0]);
         $db = db_connect();
-        $total_permohonan = $db->table('proses_permohonan')->countAll();
+        $total_permohonan = $db->table('permohonan')->countAll();
         $diterima = $db->table('proses_permohonan')->where('proses', 'Y')->countAllResults();
         $ditolak = $db->table('proses_permohonan')->where('proses', 'T')->countAllResults();
         $link_terkait = $db->table('link_terkait')->get()->getResultArray();
@@ -295,6 +306,7 @@ class Userpage extends BaseController
 
     public function insert_permohonan()
     {
+
         $jenis_informasi = $this->request->getVar('jenis_informasi');
         $isi_permohonan = $this->request->getVar('isi_permohonan');
         $file_permohonan = $this->request->getFile('file_permohonan');
@@ -318,13 +330,13 @@ class Userpage extends BaseController
                 ]
             ],
             'file_permohonan' => [
-                'rules' => 'ext_in[file_permohonan,pdf]',
+                'rules' => 'ext_in[file_permohonan,pdf,jpg,jpeg,png]',
                 'errors' => [
                     'ext_in' => 'File permohonan salah'
                 ]
             ]
         ])) {
-            session()->setFlashdata('validasi', $this->validation->getErrors());
+            session()->setFlashdata('fail', $this->validation->getErrors());
             return redirect()->to(base_url('userpage/v_permohonan'));
         }
 
@@ -356,21 +368,20 @@ class Userpage extends BaseController
 
         if ($this->permohonanModel->insert($data_insert)) {
             $data_user = $this->userModel->where('email', session()->get('user_email'))->first();
-            $email_admin = $this->profileModel->first()['email'];
-            // $email_user = 'okawinza@gmail.com';
-            try {
-                $this->email->setFrom('app.onsdee86@gmail.com', 'E-PPID');
-                $this->email->setTo($email_admin);
-                $this->email->setCC($data_user['email']);
-                // $this->email->setBCC('them@their-example.com');
+            $db = db_connect();
 
-                $this->email->setSubject("Upload permohonan informasi oleh {$data_user['nama']}");
-                $this->email->setMessage("{$data_user['nama']} telah mengirimkan permohonan informasi pada tanggal {$tanggal_permohonan} dengan isi permohonan : {$isi_permohonan}");
-                $this->email->send();
-                $status_email = 'Email berhasil dikirim';
-            } catch (\Exception $e) {
-                $status_email = 'Email gagal dikirim';
-            }
+            $email_admin = $db->table('admin_auth')->select('email')->where('jabatan', 'admin')->get()->getRowArray();
+            $email_kpt = $db->table('admin_auth')->select('email')->where('jabatan', 'Atasan PPID/KPT/WKPT')->get()->getRowArray();
+
+            $subject = "Upload permohonan informasi oleh {$data_user['nama']}";
+            $msg = "{$data_user['nama']} telah mengirimkan permohonan informasi pada tanggal {$tanggal_permohonan} dengan isi permohonan : {$isi_permohonan}";
+            $to = $data_user['email'];
+            $cc = $email_kpt['email'];
+            $bcc = $email_admin['email'];
+            $recipients = [$to, $cc, $bcc];
+            $status_email  = lets_mail($subject, $msg, $recipients);
+
+
             session()->setFlashdata('success', 'Data berhasil diinput, ' . $status_email);
             return redirect()->to(base_url('userpage/v_permohonan'));
         } else {
@@ -437,7 +448,7 @@ class Userpage extends BaseController
                 ]
             ],
             'file_permohonan' => [
-                'rules' => 'ext_in[file_permohonan,pdf]',
+                'rules' => 'ext_in[file_permohonan,jpeg,jpg,png,pdf]',
                 'errors' => [
                     'ext_in' => 'File permohonan salah'
                 ]
@@ -478,29 +489,25 @@ class Userpage extends BaseController
         if ($this->permohonanModel->update($id, $data_update)) {
             // $email_user = $this->userModel->where('email', session()->get('user_email'))->first()['email'];
             $data_user = $this->userModel->where('email', session()->get('user_email'))->first();
-            $email_admin = $this->profileModel->first()['email'];
-
             $db = db_connect();
+            $email_admin = $db->table('admin_auth')->select('email')->where('jabatan', 'admin')->get()->getRowArray();
+            $email_kpt = $db->table('admin_auth')->select('email')->where('jabatan', 'Atasan PPID/KPT/WKPT')->get()->getRowArray();
+
+
             $builder = $db->table('permohonan');
             $data_permohonan = $builder->where('permohonan.id', $id)
                 ->get()->getRowArray();
 
-            // $email_user = 'okawinza@gmail.com';
-            try {
-                $this->email->setFrom('app.onsdee86@gmail.com', 'E-PPID');
-                $this->email->setTo($email_admin);
-                $this->email->setCC($data_user['email']);
-                // $this->email->setBCC('them@their-example.com');
+            $subject = "Update permohonan informasi No. Reg {$data_permohonan['nomor_register']}";
+            $msg = "{$data_user['nama']} telah mengupdate permohonan informasi pada tanggal {$data_permohonan['tanggal_permohonan']} dengan isi permohonan : {$isi_permohonan}";
+            $to = $data_user['email'];
+            $cc = $email_kpt['email'];
+            $bcc = $email_admin['email'];
+            $recipients = [$to, $cc, $bcc];
+            $status_email  = lets_mail($subject, $msg, $recipients);
 
-                $this->email->setSubject("Update permohonan informasi No. Reg {$data_permohonan['nomor_register']}");
-                $this->email->setMessage("{$data_user['nama']} telah mengupdate permohonan informasi pada tanggal {$data_permohonan['tanggal_permohonan']} dengan isi permohonan : {$isi_permohonan}");
-                $this->email->send();
-                $status_email = 'Email berhasil dikirim';
-            } catch (\Exception $e) {
-                $status_email = 'Email gagal dikirim';
-            }
-            session()->setFlashdata('success', 'Data berhasil diubah, ' . $status_email);
-            return redirect()->to(base_url('userpage/v_permohonan'));
+            // $email_user = 'okawinza@gmail.com';
+
             session()->setFlashdata('success', 'Data berhasil diubah, ' . $status_email);
             return redirect()->to(base_url('userpage/v_permohonan'));
         } else {
@@ -564,7 +571,7 @@ class Userpage extends BaseController
                 ]
             ]
         ])) {
-            session()->setFlashdata('validasi', $this->validation->getErrors());
+            session()->setFlashdata('fail', $this->validation->getErrors());
             return redirect()->to(base_url('userpage/v_permohonan'));
         }
 
@@ -581,25 +588,22 @@ class Userpage extends BaseController
 
             if ($this->keberatanModel->where('permohonan_id', $permohonan_id)->set($data_insert)->update()) {
                 $data_user = $this->userModel->where('email', session()->get('user_email'))->first();
-                $email_admin = $this->profileModel->first()['email'];
-
                 $db = db_connect();
+                $email_admin = $db->table('admin_auth')->select('email')->where('jabatan', 'admin')->get()->getRowArray();
+                $email_kpt = $db->table('admin_auth')->select('email')->where('jabatan', 'Atasan PPID/KPT/WKPT')->get()->getRowArray();
+
                 $builder = $db->table('permohonan');
                 $data_permohonan = $builder->where('id', $permohonan_id)->get()->getRowArray();
-                // $email_user = 'okawinza@gmail.com';
-                try {
-                    $this->email->setFrom('app.onsdee86@gmail.com', 'E-PPID');
-                    $this->email->setTo($email_admin);
-                    $this->email->setCC($data_user['email']);
-                    // $this->email->setBCC('them@their-example.com');
 
-                    $this->email->setSubject("Pengajuan keberatan atas permohonan informasi No. Reg {$data_permohonan['nomor_register']}");
-                    $this->email->setMessage("{$data_user['nama']} telah mengajukan keberatan permohonan informasi pada tanggal {$tanggal_keberatan} dengan isi keberatan : {$isi_keberatan}");
-                    $this->email->send();
-                    $status_email = 'Email berhasil dikirim';
-                } catch (\Exception $e) {
-                    $status_email = 'Email gagal dikirim';
-                }
+                $subject = "Pengajuan keberatan atas permohonan informasi No. Reg {$data_permohonan['nomor_register']}";
+                $msg = "{$data_user['nama']} telah mengajukan keberatan permohonan informasi pada tanggal {$tanggal_keberatan} dengan isi keberatan : {$isi_keberatan}";
+                $to = $data_user['email'];
+                $cc = $email_kpt['email'];
+                $bcc = $email_admin['email'];
+                $recipients = [$to, $cc, $bcc];
+                $status_email  = lets_mail($subject, $msg, $recipients);
+                // $email_user = 'okawinza@gmail.com';
+
                 session()->setFlashdata('success', 'Data berhasil diinput, ' . $status_email);
                 return redirect()->to(base_url('userpage/v_keberatan'));
             } else {
@@ -612,25 +616,23 @@ class Userpage extends BaseController
                 $this->permohonanModel->update($permohonan_id, ['status' => 'Pengajuan keberatan']);
 
                 $data_user = $this->userModel->where('email', session()->get('user_email'))->first();
-                $email_admin = $this->profileModel->first()['email'];
-
                 $db = db_connect();
+                $db = db_connect();
+                $email_admin = $db->table('admin_auth')->select('email')->where('jabatan', 'admin')->get()->getRowArray();
+                $email_kpt = $db->table('admin_auth')->select('email')->where('jabatan', 'Atasan PPID/KPT/WKPT')->get()->getRowArray();
+
                 $builder = $db->table('permohonan');
                 $data_permohonan = $builder->where('id', $permohonan_id)->get()->getRowArray();
-                // $email_user = 'okawinza@gmail.com';
-                try {
-                    $this->email->setFrom('app.onsdee86@gmail.com', 'E-PPID');
-                    $this->email->setTo($email_admin);
-                    $this->email->setCC($data_user['email']);
-                    // $this->email->setBCC('them@their-example.com');
 
-                    $this->email->setSubject("Pengajuan keberatan atas permohonan informasi No. Reg {$data_permohonan['nomor_register']}");
-                    $this->email->setMessage("{$data_user['nama']} telah mengajukan keberatan permohonan informasi pada tanggal {$tanggal_keberatan} dengan isi keberatan : {$isi_keberatan}");
-                    $this->email->send();
-                    $status_email = 'Email berhasil dikirim';
-                } catch (\Exception $e) {
-                    $status_email = 'Email gagal dikirim';
-                }
+                $subject = "Pengajuan keberatan atas permohonan informasi No. Reg {$data_permohonan['nomor_register']}";
+                $msg = "{$data_user['nama']} telah mengajukan keberatan permohonan informasi pada tanggal {$tanggal_keberatan} dengan isi keberatan : {$isi_keberatan}";
+                $to = $data_user['email'];
+                $cc = $email_kpt['email'];
+                $bcc = $email_admin['email'];
+                $recipients = [$to, $cc, $bcc];
+                $status_email  = lets_mail($subject, $msg, $recipients);
+                // $email_user = 'okawinza@gmail.com';
+
                 session()->setFlashdata('success', 'Data berhasil diinput, ' . $status_email);
                 return redirect()->to(base_url('userpage/v_keberatan'));
             } else {
@@ -751,29 +753,27 @@ class Userpage extends BaseController
 
         if ($this->keberatanModel->update_keberatan($id, $data)) {
             $data_user = $this->userModel->where('email', session()->get('user_email'))->first();
-            $email_admin = $this->profileModel->first()['email'];
-
             $db = db_connect();
+            $db = db_connect();
+            $email_admin = $db->table('admin_auth')->select('email')->where('jabatan', 'admin')->get()->getRowArray();
+            $email_kpt = $db->table('admin_auth')->select('email')->where('jabatan', 'Atasan PPID/KPT/WKPT')->get()->getRowArray();
+
+
             $builder = $db->table('permohonan');
             $data_permohonan = $builder->where('permohonan.id', $id)
                 ->select('permohonan.id as permohonan_id, nomor_register,tanggal_keberatan')
                 ->join('keberatan', "permohonan.id=keberatan.permohonan_id")
                 ->get()->getRowArray();
 
+            $subject = "Update pengajuan keberatan atas permohonan informasi No. Reg {$data_permohonan['nomor_register']}";
+            $msg = "{$data_user['nama']} telah mengupdate keberatan permohonan informasi pada tanggal {$data_permohonan['tanggal_keberatan']} dengan isi keberatan : {$isi_keberatan}";
+            $to = $data_user['email'];
+            $cc = $email_kpt['email'];
+            $bcc = $email_admin['email'];
+            $recipients = [$to, $cc, $bcc];
+            $status_email  = lets_mail($subject, $msg, $recipients);
             // $email_user = 'okawinza@gmail.com';
-            try {
-                $this->email->setFrom('app.onsdee86@gmail.com', 'E-PPID');
-                $this->email->setTo($email_admin);
-                $this->email->setCC($data_user['email']);
-                // $this->email->setBCC('them@their-example.com');
 
-                $this->email->setSubject("Update pengajuan keberatan atas permohonan informasi No. Reg {$data_permohonan['nomor_register']}");
-                $this->email->setMessage("{$data_user['nama']} telah mengupdate keberatan permohonan informasi pada tanggal {$data_permohonan['tanggal_keberatan']} dengan isi keberatan : {$isi_keberatan}");
-                $this->email->send();
-                $status_email = 'Email berhasil dikirim';
-            } catch (\Exception $e) {
-                $status_email = 'Email gagal dikirim';
-            }
             session()->setFlashdata('success', 'Data berhasil diubah, ' . $status_email);
             return redirect()->to(base_url('userpage/v_keberatan'));
         } else {
@@ -870,11 +870,13 @@ class Userpage extends BaseController
     public function v_laporan_layanan()
     {
         $data_laporan = $this->laporanModel->orderBy('tahun', 'desc')->findAll(10);
-        // dd($data_statistik);
 
+        $data_tidak_ada = (file_exists(ROOTPATH . 'public/admin_file/laporan/' . $data_laporan[0]['laporan'])) ?: false;
+        // dd($data_tidak_ada);
         $data = [
             'title' => 'Laporan Informasi',
-            'data_laporan' => $data_laporan
+            'data_laporan' => $data_laporan,
+            'data_tidak_ada' => $data_tidak_ada
         ];
 
         return view('user/v_laporan_layanan', $data);
@@ -882,11 +884,16 @@ class Userpage extends BaseController
 
     public function file_check_laporan($nama_file)
     {
-        $client = \Config\Services::curlrequest();
-        $response = $client->send('GET', base_url('admin_file/laporan/' . $nama_file));
-        // $body = $response->getBody();
+        if (file_exists(ROOTPATH . 'public/admin_file/laporan/' . $nama_file)) {
 
-        return $response;
+            $client = \Config\Services::curlrequest();
+            $response = $client->send('GET', base_url('admin_file/laporan/' . $nama_file));
+            // $body = $response->getBody();
+
+            return $response;
+        } else {
+            return "File tidak ada";
+        }
     }
 
     public function v_prasyarat($jenis_prasyarat)

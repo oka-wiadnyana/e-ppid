@@ -23,6 +23,9 @@ use App\Models\LayananelektronikModel;
 use App\Models\AdminauthModel;
 use App\Models\UserauthModelDT;
 use CodeIgniter\I18n\Time;
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
 
 class Admineppid extends BaseController
 {
@@ -49,6 +52,8 @@ class Admineppid extends BaseController
         $this->userauthModel = new UserauthModelDT();
         $this->validation = Services::validation();
         $this->email = Services::email();
+
+        helper('mailer_helper');
     }
 
     public function index()
@@ -916,6 +921,8 @@ class Admineppid extends BaseController
         $uraian = $this->request->getVar('uraian');
         $link = $this->request->getVar('link');
 
+        // return $this->response->setJSON([$level1, $level2, $level3]);
+
         if (!$this->validate([
             'level1' => [
                 'rules' => 'required',
@@ -935,12 +942,12 @@ class Admineppid extends BaseController
                     'required' => 'Level 3 harus diisi'
                 ],
             ],
-            'level4' => [
-                'rules' => 'required',
-                'errors' => [
-                    'required' => 'Level 4 harus diisi'
-                ],
-            ],
+            // 'level4' => [
+            //     'rules' => 'required',
+            //     'errors' => [
+            //         'required' => 'Level 4 harus diisi'
+            //     ],
+            // ],
             'uraian' => [
                 'rules' => 'required',
                 'errors' => [
@@ -958,6 +965,7 @@ class Admineppid extends BaseController
             return $this->response->setJSON(['msg' => 'validasi']);
         }
 
+
         $jmldata = count($level1);
         for ($i = 0; $i < $jmldata; $i++) {
             $db = db_connect();
@@ -971,9 +979,7 @@ class Admineppid extends BaseController
                 ->get()
                 ->getRowArray()['level4'];
 
-            $max_data = ++$max_data;
-
-
+            $max_data = (int)$max_data + 1;
 
             $this->linkModel->insert([
                 'level1' => $level1[$i],
@@ -1332,7 +1338,7 @@ class Admineppid extends BaseController
                     $row[] = "<span class='badge bg-secondary'>$list->status</span>";
                 }
                 $row[] = $list->jawaban;
-                $row[] = "<a href='' class='btn btn-warning reject_btn " . $disabled . "' data-id=" . $list->permohonan_id . " style='border-radius:50%' data-toggle='tooltip' data-placement='bottom' title='Tolak'><i class='fas fa-eject'></i></a><a href='' class='btn btn-info accept_btn " . $disabled . "' data-id=" . $list->permohonan_id . " data-register=" . $list->nomor_register . " style='border-radius:50%' data-toggle='tooltip' data-placement='bottom' title='Proses'><i class='fas fa-check-square'></i></a><a href='' class='btn btn-danger delete_btn' data-id=" . $list->permohonan_id . " data-nama=" . $list->nomor_register . " data-email=" . $list->user_email . " style='border-radius:50%'><i class='fas fa-trash-alt' data-toggle='tooltip' data-placement='bottom' title='Hapus'></i></a>";
+                $row[] = "<a href='' class='btn btn-warning reject_btn " . $disabled . "' data-id=" . $list->permohonan_id . " style='border-radius:50%' data-toggle='tooltip' data-placement='bottom' title='Tolak'><i class='fas fa-eject'></i></a><a href='" . base_url('admineppid/download_ktp/' . $list->permohonan_id) . "'class='btn btn-info text-white' data-id='" . $list->permohonan_id . "' style='border-radius:50%' data-toggle='tooltip' data-placement='top' title='File KTP' target=_blank'><i class='fa fa-file'></i></a><a href='' class='btn btn-info accept_btn " . $disabled . "' data-id=" . $list->permohonan_id . " data-register=" . $list->nomor_register . " style='border-radius:50%' data-toggle='tooltip' data-placement='bottom' title='Proses'><i class='fas fa-check-square'></i></a><a href='' class='btn btn-danger delete_btn' data-id=" . $list->permohonan_id . " data-nama=" . $list->nomor_register . " data-email=" . $list->user_email . " style='border-radius:50%'><i class='fas fa-trash-alt' data-toggle='tooltip' data-placement='bottom' title='Hapus'></i></a>";
                 $data[] = $row;
             }
             $output = [
@@ -1448,20 +1454,18 @@ class Admineppid extends BaseController
         if ($this->permohonanModel->update_proses($id, $data)) {
 
             $data_permohonan = $this->permohonanModel->find_data($id);
-            $email_admin = $this->profilSatkerModel->first()['email'];
-            try {
-                $this->email->setFrom('app.onsdee86@gmail.com', 'E-PPID');
-                $this->email->setTo($email_admin);
-                $this->email->setCC($data_permohonan['user_email']);
-                // $this->email->setBCC('them@their-example.com');
+            $db = db_connect();
+            $email_admin = $db->table('admin_auth')->select('email')->where('jabatan', 'admin')->get()->getRowArray();
+            $email_kpt = $db->table('admin_auth')->select('email')->where('jabatan', 'Atasan PPID/KPT/WKPT')->get()->getRowArray();
 
-                $this->email->setSubject("Jawaban atas permohonan informasi nomor : {$data_permohonan['nomor_register']}");
-                $this->email->setMessage("Halo {$data_permohonan['nama']}, permohonan Saudara/i dengan nomor register {$data_permohonan['nomor_register']} telah dijawab dengan jawaban sebagai berikut : {$data_permohonan['jawaban']}");
-                $this->email->send();
-                $status_email = 'Email berhasil dikirim';
-            } catch (\Exception $e) {
-                $status_email = 'Email gagal dikirim';
-            }
+            $subject = "Jawaban atas permohonan informasi nomor : {$data_permohonan['nomor_register']}";
+            $msg = "Halo {$data_permohonan['nama']}, permohonan Saudara/i dengan nomor register {$data_permohonan['nomor_register']} telah dijawab dengan jawaban sebagai berikut : {$data_permohonan['jawaban']}";
+            $to = $data_permohonan['user_email'];
+            $cc = $email_kpt['email'];
+            $bcc = $email_admin['email'];
+            $recipients = [$to, $cc, $bcc];
+            $status_email  = lets_mail($subject, $msg, $recipients);
+
 
             session()->setFlashdata('success', 'Jawaban berhasil diinput, ' . $status_email);
             return redirect()->to('admineppid/daftar_permohonan');
@@ -1533,20 +1537,18 @@ class Admineppid extends BaseController
         if ($this->permohonanModel->update_proses($id, $data, 'tolak')) {
 
             $data_permohonan = $this->permohonanModel->find_data($id);
-            $email_admin = $this->profilSatkerModel->first()['email'];
-            try {
-                $this->email->setFrom('app.onsdee86@gmail.com', 'E-PPID');
-                $this->email->setTo($email_admin);
-                $this->email->setCC($data_permohonan['user_email']);
-                // $this->email->setBCC('them@their-example.com');
+            $db = db_connect();
+            $email_admin = $db->table('admin_auth')->select('email')->where('jabatan', 'admin')->get()->getRowArray();
+            $email_kpt = $db->table('admin_auth')->select('email')->where('jabatan', 'Atasan PPID/KPT/WKPT')->get()->getRowArray();
 
-                $this->email->setSubject("Penolakan permohonan informasi nomor : {$data_permohonan['nomor_register']}");
-                $this->email->setMessage("Halo {$data_permohonan['nama']}, permohonan Saudara/i dengan nomor register {$data_permohonan['nomor_register']} ditolak oleh karena : {$data_permohonan['jawaban']}");
-                $this->email->send();
-                $status_email = 'Email berhasil dikirim';
-            } catch (\Exception $e) {
-                $status_email = 'Email gagal dikirim';
-            }
+            $subject = "Penolakan permohonan informasi nomor : {$data_permohonan['nomor_register']}";
+            $msg = "Halo {$data_permohonan['nama']}, permohonan Saudara/i dengan nomor register {$data_permohonan['nomor_register']} ditolak oleh karena : {$data_permohonan['jawaban']}";
+
+            $to = $data_permohonan['user_email'];
+            $cc = $email_kpt['email'];
+            $bcc = $email_admin['email'];
+            $recipients = [$to, $cc, $bcc];
+            $status_email  = lets_mail($subject, $msg, $recipients);
 
             session()->setFlashdata('success', 'Jawaban berhasil diinput, ' . $status_email);
             return redirect()->to('admineppid/daftar_permohonan');
@@ -1702,21 +1704,18 @@ class Admineppid extends BaseController
         if ($this->keberatanModel->proses_keberatan($id, $data)) {
 
             $data_keberatan = $this->keberatanModel->find_data($id, $data);
-            $email_admin = $this->profilSatkerModel->first()['email'];
-            try {
-                $this->email->setFrom('app.onsdee86@gmail.com', 'E-PPID');
-                $this->email->setTo($email_admin);
-                $this->email->setCC($data_keberatan['user_email']);
-                // $this->email->setBCC('them@their-example.com');
+            $db = db_connect();
+            $email_admin = $db->table('admin_auth')->select('email')->where('jabatan', 'admin')->get()->getRowArray();
+            $email_kpt = $db->table('admin_auth')->select('email')->where('jabatan', 'Atasan PPID/KPT/WKPT')->get()->getRowArray();
 
-                $this->email->setSubject("Tanggapan atas keberatan permohonan informasi nomor : {$data_keberatan['nomor_register']}");
-                // $this->email->setMessage("Halo {$data_keberatan['nama']}, keberatan permohonan Saudara/i dengan nomor register permohonan informasi {$data_keberatan['nomor_register']} telah ditanggapi dengan tanggapan sebagai berikut : {$data_keberatan['tanggapan']}");
-                $this->email->setMessage("Halo {$data_keberatan['nama']}, , keberatan permohonan Saudara/i dengan nomor register permohonan informasi {$data_keberatan['nomor_register']} telah ditanggapi dengan tanggapan sebagai berikut : {$data_keberatan['tanggapan']}");
-                $this->email->send();
-                $status_email = 'Email berhasil dikirim';
-            } catch (\Exception $e) {
-                $status_email = 'Email gagal dikirim';
-            }
+            $subject = "Tanggapan atas keberatan permohonan informasi nomor : {$data_keberatan['nomor_register']}";
+            $msg = "Halo {$data_keberatan['nama']}, , keberatan permohonan Saudara/i dengan nomor register permohonan informasi {$data_keberatan['nomor_register']} telah ditanggapi dengan tanggapan sebagai berikut : {$data_keberatan['tanggapan']}";
+            $to = $data_keberatan['user_email'];
+            $cc = $email_kpt['email'];
+            $bcc = $email_admin['email'];
+            $recipients = [$to, $cc, $bcc];
+            $status_email  = lets_mail($subject, $msg, $recipients);
+
 
             session()->setFlashdata('success', 'Tanggapan berhasil diinput, ' . $status_email);
             return redirect()->to('admineppid/daftar_keberatan');
@@ -2696,7 +2695,7 @@ class Admineppid extends BaseController
                 return $this->response->setJSON(['url' => base_url('admineppid/manipulate_prasyarat')]);
             }
         } else {
-            if ($this->profilPpidModel->update($id, $data_prasyarat)) {
+            if ($this->prasyaratModel->update($id, $data_prasyarat)) {
                 session()->setFlashdata('success', 'Data PPID berhasil diupdate');
                 return $this->response->setJSON(['url' => base_url('admineppid/v_prasyarat')]);
             } else {
@@ -3011,7 +3010,7 @@ class Admineppid extends BaseController
             $data = [];
             $no = $request->getPost("start");
             foreach ($lists as $list) {
-
+                $none = ($list->jabatan == 'admin') ? 'd-none' : '';
                 $no++;
                 $row = [];
                 $row[] = $no;
@@ -3021,7 +3020,7 @@ class Admineppid extends BaseController
                 $row[] = $list->email;
                 $row[] = "<img class='img-fluid' src='" . base_url('admin/img_profile/' . $list->foto_profil) . "' width='80vh'>";
 
-                $row[] = "<a href='' class='btn btn-info edit_btn' data-id=" . $list->id . " style='border-radius:50%' data-toggle='tooltip' data-placement='bottom' title='Edit'><i class='fas fa-check-square'></i></a><a href='' class='btn btn-danger delete_btn' data-id=" . $list->id . " data-foto=" . $list->foto_profil . " style='border-radius:50%' data-toggle='tooltip' data-placement='bottom' title='Hapus'><i class='fas fa-trash-alt'></i></a>";
+                $row[] = "<a href='' class='btn btn-info edit_btn " . $none . "' data-id=" . $list->id . " style='border-radius:50%' data-toggle='tooltip' data-placement='bottom' title='Edit'><i class='fas fa-check-square'></i></a><a href='' class='btn btn-danger delete_btn " . $none . "' data-id=" . $list->id . " data-foto=" . $list->foto_profil . " style='border-radius:50%' data-toggle='tooltip' data-placement='bottom' title='Hapus'><i class='fas fa-trash-alt'></i></a>";
                 $data[] = $row;
             }
             $output = [
@@ -3081,7 +3080,7 @@ class Admineppid extends BaseController
                 $row[] = $list->alamat;
                 $row[] = $list->pekerjaan;
                 $row[] = $list->institusi;
-                $row[] = "<a href='' class='btn btn-info edit_btn' data-id=" . $list->id . " style='border-radius:50%' data-toggle='tooltip' data-placement='bottom' title='Edit'><i class='fas fa-check-square'></i></a><a href='' class='btn btn-danger delete_btn' data-id=" . $list->id .
+                $row[] = "<a href='' class='btn btn-info edit_btn' data-id=" . $list->id . " style='border-radius:50%' data-toggle='tooltip' data-placement='bottom' title='Edit'><i class='fas fa-check-square'></i></a><a href='" . base_url('admineppid/download_user_ktp/' . $list->id) . "'class='btn btn-info text-white' data-id='" . $list->id . "' style='border-radius:50%' data-toggle='tooltip' data-placement='top' title='File KTP' target=_blank'><i class='fa fa-file'></i></a><a href='' class='btn btn-danger delete_btn' data-id=" . $list->id .
                     " style='border-radius:50%' data-toggle='tooltip' data-placement='bottom' title='Hapus'><i class='fas fa-trash-alt'></i></a>";
                 $data[] = $row;
             }
@@ -3259,5 +3258,37 @@ class Admineppid extends BaseController
         $this->response->setContentType('application/pdf');
 
         $mpdf->Output("data.pdf", "I");
+    }
+
+    public function download_ktp($id)
+    {
+        $db = db_connect();
+        $data = $db->table('permohonan p')->select('ktp')->join('user_profil up', 'p.email=up.email')->where('p.id', $id)->get()->getRowArray()['ktp'];
+        // dd($data);
+        if ($data) {
+
+            $client = Services::curlrequest();
+            $user_file = $client->send('GET', base_url('ktp/' . $data));
+
+            return $user_file;
+        } else {
+            echo "file not exist";
+        }
+    }
+
+    public function download_user_ktp($id)
+    {
+        $db = db_connect();
+        $data = $db->table('user_profil p')->select('ktp')->where('p.id', $id)->get()->getRowArray()['ktp'];
+        // dd($data);
+        if ($data) {
+
+            $client = Services::curlrequest();
+            $user_file = $client->send('GET', base_url('ktp/' . $data));
+
+            return $user_file;
+        } else {
+            echo "file not exist";
+        }
     }
 }

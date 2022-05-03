@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Favicons -->
+    <link href="<?= base_url('admin'); ?>/images/logo-ma.png" rel="icon">
+    <link href="<?= base_url('admin'); ?>/images/logo-ma.png" rel="apple-touch-icon">
     <title>User login</title>
     <link rel="stylesheet" href="<?= base_url('mycss/userauth2.css'); ?>">
 </head>
@@ -17,8 +20,8 @@
             <img src="<?= base_url('img/logo-pn.png'); ?>" alt="">
         </div>
         <div class="page-text">
-            <p class="page-initial">SELAMAT DATANG DI E-PPID</p>
-            <p class="page-initial">PENGADILAN NEGERI BANGLI</p>
+            <p class="page-initial">SELAMAT DATANG DI E-PELITA</p>
+            <p class="page-initial"><?= session()->get('profil_nama'); ?></p>
         </div>
 
         <div class="login-form">

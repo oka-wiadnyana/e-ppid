@@ -30,56 +30,109 @@ class Adminauth extends BaseController
         $data = $this->request->getVar();
         $foto_profil = $this->request->getFile('foto_profil');
 
+        if ($data['jabatan'] == 'Atasan PPID/KPT/WKPT' || $data['jabatan'] == 'PPID Kepaniteraan/Panitera' || $data['jabatan'] == 'PPID Kesekretariatan/Sekretaris' || $data['jabatan'] == 'Panmud Hukum') {
+            $validasi_jabatan = [
+                'nama' => [
+                    'rules' => 'required',
+                    'errors' => [
+                        'required' => 'Nama harus diisi'
+                    ]
+                ],
+                'nip' => [
+                    'rules' => 'required',
+                    'errors' => [
+                        'required' => 'NIP harus diisi'
+                    ]
+                ],
+                'jabatan' => [
+                    'rules' => 'required|is_unique[admin_auth.jabatan]',
+                    'errors' => [
+                        'required' => 'Jabatan harus diisi',
+                        'is_unique' => 'Jabatan sudah ada'
 
-        if (!$this->validate([
-            'nama' => [
-                'rules' => 'required',
-                'errors' => [
-                    'required' => 'Nama harus diisi'
-                ]
-            ],
-            'nip' => [
-                'rules' => 'required',
-                'errors' => [
-                    'required' => 'NIP harus diisi'
-                ]
-            ],
-            'jabatan' => [
-                'rules' => 'required',
-                'errors' => [
-                    'required' => 'Jabatan harus diisi',
+                    ]
+                ],
+                'email' => [
+                    'rules' => 'required|is_unique[admin_auth.email]',
+                    'errors' => [
+                        'required' => 'Email harus diisi',
+                        'is_unique' => 'Email sudah ada'
+                    ]
+                ],
 
-                ]
-            ],
-            'email' => [
-                'rules' => 'required|is_unique[admin_auth.email]',
-                'errors' => [
-                    'required' => 'Email harus diisi',
-                    'is_unique' => 'Email sudah ada'
-                ]
-            ],
+                'password' => [
+                    'rules' => 'required',
+                    'errors' => [
+                        'required' => 'Password harus diisi'
+                    ]
+                ],
+                'password2' => [
+                    'rules' => 'required|matches[password]',
+                    'errors' => [
+                        'required' => 'Konfirmasi Password harus diisi',
+                        'matches' => 'Konfirmasi password tidak sama'
+                    ]
+                ],
+                'foto_profil' => [
+                    'rules' => 'ext_in[foto_profil,png,jpg,jpeg]',
+                    'errors' => [
+                        'ext_in' => 'Jenis file salah',
+                    ]
+                ],
+            ];
+        } else {
+            $validasi_jabatan = [
+                'nama' => [
+                    'rules' => 'required',
+                    'errors' => [
+                        'required' => 'Nama harus diisi'
+                    ]
+                ],
+                'nip' => [
+                    'rules' => 'required',
+                    'errors' => [
+                        'required' => 'NIP harus diisi'
+                    ]
+                ],
+                'jabatan' => [
+                    'rules' => 'required',
+                    'errors' => [
+                        'required' => 'Jabatan harus diisi',
 
-            'password' => [
-                'rules' => 'required',
-                'errors' => [
-                    'required' => 'Password harus diisi'
-                ]
-            ],
-            'password2' => [
-                'rules' => 'required|matches[password]',
-                'errors' => [
-                    'required' => 'Konfirmasi Password harus diisi',
-                    'matches' => 'Konfirmasi password tidak sama'
-                ]
-            ],
+                    ]
+                ],
+                'email' => [
+                    'rules' => 'required|is_unique[admin_auth.email]',
+                    'errors' => [
+                        'required' => 'Email harus diisi',
+                        'is_unique' => 'Email sudah ada'
+                    ]
+                ],
 
-            'foto_profil' => [
-                'rules' => 'ext_in[foto_profil,png,jpg,jpeg]',
-                'errors' => [
-                    'ext_in' => 'Jenis file salah',
-                ]
-            ],
-        ])) {
+                'password' => [
+                    'rules' => 'required',
+                    'errors' => [
+                        'required' => 'Password harus diisi'
+                    ]
+                ],
+                'password2' => [
+                    'rules' => 'required|matches[password]',
+                    'errors' => [
+                        'required' => 'Konfirmasi Password harus diisi',
+                        'matches' => 'Konfirmasi password tidak sama'
+                    ]
+                ],
+
+                'foto_profil' => [
+                    'rules' => 'ext_in[foto_profil,png,jpg,jpeg]',
+                    'errors' => [
+                        'ext_in' => 'Jenis file salah',
+                    ]
+                ],
+            ];
+        }
+
+        if (!$this->validate($validasi_jabatan)) {
             // dd($this->validation->getErrors());
             session()->setFlashdata('fail', $this->validation->getErrors());
             return redirect()->to('admineppid/tambah_admin')->withInput();
@@ -148,7 +201,9 @@ class Adminauth extends BaseController
 
         $nama_foto_profil = "";
         if (!$foto_profil->getError() == 4) {
-            unlink(ROOTPATH . 'public/admin/img_profile/' . $data['foto_lama']);
+            if ($data['foto_lama'] != 'no-profil.jpg') {
+                unlink(ROOTPATH . 'public/admin/img_profile/' . $data['foto_lama']);
+            }
             $nama_foto_profil = "Admin-" . time() . "." . $foto_profil->getClientExtension();
             $foto_profil->move(ROOTPATH . 'public/admin/img_profile', $nama_foto_profil);
         } else {

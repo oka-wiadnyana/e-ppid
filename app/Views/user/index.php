@@ -8,8 +8,8 @@
          <!-- Slide 1 -->
          <div class="carousel-item active">
              <div class="carousel-container">
-                 <h2 class="animate__animated animate__fadeInDown">Selamat datang di <span>E-PPID</span></h2>
-                 <p class="animate__animated animate__fadeInUp">E-PPID merupakan media layanan informasi, sebagai bentuk keterbukaan informasi publik <?= ucwords(session()->get('profil_nama')); ?> dan amanat Undang-Undang Nomor 14 Tahun 2008 tentang Keterbukaan Informasi Publik</p>
+                 <h2 class="animate__animated animate__fadeInDown">Selamat datang di <span>E-Pelita Informasi</span></h2>
+                 <p class="animate__animated animate__fadeInUp">E-Pelita Informasi merupakan media layanan informasi, sebagai bentuk keterbukaan informasi publik <?= ucwords(session()->get('profil_nama')); ?> dan amanat Undang-Undang Nomor 14 Tahun 2008 tentang Keterbukaan Informasi Publik</p>
              </div>
          </div>
 
@@ -17,7 +17,7 @@
          <div class="carousel-item">
              <div class="carousel-container">
                  <h2 class="animate__animated animate__fadeInDown">Permohonan Informasi Elektronik</h2>
-                 <p class="animate__animated animate__fadeInUp">E-PPID dilengkapi dengan fitur permohonan informasi secara elektronik, sehingga dapat memudahkan masyarakat untuk mendapatkan informasi sesuai dengan yang diinginkan dari <?= ucwords(session()->get('profil_nama')); ?></p>
+                 <p class="animate__animated animate__fadeInUp">E-Pelita Informasi dilengkapi dengan fitur permohonan informasi secara elektronik, sehingga dapat memudahkan masyarakat untuk mendapatkan informasi sesuai dengan yang diinginkan dari <?= ucwords(session()->get('profil_nama')); ?></p>
              </div>
          </div>
 
@@ -67,7 +67,7 @@
                      <div class="icon-box">
                          <div class="icon"><i class="bx bx-layer"></i></div>
                          <h4 class="title"><a href="" id="btn-modal">Informasi Tanggap Cepat</a></h4>
-                         <p class="description">Layanan informasi cepat yang disediakan oleh Pengadilan Negeri Bangli dengan menggunakan Whatsapp Bot</p>
+                         <p class="description">Layanan informasi cepat yang disediakan oleh <?= session()->get('profil_nama'); ?> dengan menggunakan Whatsapp Bot</p>
                      </div>
                  </div>
 

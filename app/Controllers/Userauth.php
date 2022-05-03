@@ -30,6 +30,7 @@ class Userauth extends BaseController
     public function attempt_register($admin = null)
     {
         $data = $this->request->getVar();
+        $ktp = $this->request->getFile('ktp');
 
         if (!$this->validate([
             'nik' => [
@@ -82,6 +83,13 @@ class Userauth extends BaseController
                     'matches' => 'Konfirmasi password tidak sama'
                 ]
             ],
+            'ktp' => [
+                'rules' => 'uploaded[ktp]|ext_in[ktp,pdf,jpg,jpeg,png]',
+                'errors' => [
+                    'uploaded' => 'KTP harus diupload',
+                    'ext_in' => 'Jenis KTP salah'
+                ]
+            ]
         ])) {
             // dd($this->validation->getErrors());
 
@@ -97,7 +105,12 @@ class Userauth extends BaseController
         $password_hash = password_hash($data['password'], PASSWORD_BCRYPT);
         unset($data['password']);
         unset($data['password2']);
-        $data_insert = array_merge($data, ['password' => $password_hash]);
+
+        $nama_ktp = 'ktp-' . time() . '.' . $ktp->getClientExtension();
+        $ktp->move('ktp', $nama_ktp);
+
+        $data_insert = array_merge($data, ['password' => $password_hash, 'ktp' => $nama_ktp]);
+        // dd($data_insert);
 
         if ($this->userAuthModel->insert($data_insert)) {
             if ($admin == 'admin') {
@@ -121,6 +134,7 @@ class Userauth extends BaseController
     public function edit_user()
     {
         $data = $this->request->getVar();
+        $ktp = $this->request->getFile('ktp');
 
         if (!$this->validate([
             'nik' => [
@@ -152,6 +166,12 @@ class Userauth extends BaseController
                 'errors' => [
                     'required' => 'Pekerjaan harus diisi'
                 ]
+            ],
+            'ktp' => [
+                'rules' => 'ext_in[ktp,pdf,jpg,jpeg,png]',
+                'errors' => [
+                    'ext_in' => 'Jenis file salah'
+                ]
             ]
         ])) {
             // dd($this->validation->getErrors());
@@ -160,8 +180,17 @@ class Userauth extends BaseController
             return redirect()->to('admineppid/v_user')->withInput();
         }
 
+        if ($ktp->isValid()) {
+            $nama_ktp = 'ktp-' . time() . '.' . $ktp->getClientExtension();
+            $ktp->move('ktp', $nama_ktp);
+        } else {
+            $nama_ktp = $this->request->getVar('ktp_lama');
+        }
 
-        if ($this->userAuthModel->update($data['id'], $data)) {
+        $data_update = array_merge($data, ['ktp' => $nama_ktp]);
+
+
+        if ($this->userAuthModel->update($data['id'], $data_update)) {
             session()->setFlashdata('success', 'Edit user berhasil');
             return redirect()->to('admineppid/v_user');
         } else {
@@ -208,6 +237,7 @@ class Userauth extends BaseController
             if (password_verify($password, $find_email[0]['password'])) {
                 session()->set('user_login', true);
                 session()->set('user_email', $email);
+                session()->set('user_nama', $find_email[0]['nama']);
                 return redirect()->to('userpage/v_permohonan');
             } else {
                 session()->setFlashdata('gagal', 'Password salah');

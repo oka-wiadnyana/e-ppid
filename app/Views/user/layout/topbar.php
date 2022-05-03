@@ -6,6 +6,7 @@
         </div>
         <div class="cta">
             <?php if (session()->has('user_login')) : ?>
+                <span>Selamat datang <?= session()->get('user_nama') ?> | </span>
                 <a href="<?= base_url('userauth/logout'); ?>" class="scrollto">Logout</a>
             <?php else : ?>
                 <a href="<?= base_url('userauth'); ?>" class="scrollto">Login</a>

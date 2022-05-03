@@ -11,7 +11,7 @@
             <div class="clearfix"></div>
             <div class="x_content">
                 <br />
-                <form id="form_admin" method="post" action="<?= base_url('userauth/edit_user'); ?>" >
+                <form id="form_admin" method="post" action="<?= base_url('userauth/edit_user'); ?>" enctype="multipart/form-data">
                     <?= csrf_field(); ?>
                     <div class="item form-group">
                         <label class="col-form-label col-md-3 col-sm-3 label-align" for="first-name">NIK <span class="required">*</span>
@@ -62,9 +62,25 @@
                         </div>
                     </div>
 
-                    
+                    <div class="item form-group" style="margin-top: 1rem;">
+                        <label for="inputGroupFile01" class="col-form-label col-md-3 col-sm-3 label-align">KTP</label>
+                        <div class="col">
+
+                            <input type="file" class="form-control" id="inputGroupFile01" name="ktp">
+                        </div>
+                    </div>
+                    <div class="item form-group" style="margin-top: 1rem;">
+                        <label for="inputGroupFile01" class="col-form-label col-md-3 col-sm-3 label-align">KTP lama</label>
+                        <div class="col">
+
+                            <input type="text" id="ktp" class="form-control" value="<?= $data_user['ktp']; ?>" readonly name="ktp_lama">
+                        </div>
+
+                    </div>
+
+
                     <input type="hidden" name="id" value="<?= $data_user['id']; ?>">
-                  
+
                     <div class="ln_solid"></div>
                     <div class="item form-group">
                         <div class="col-md-6 col-sm-6 offset-md-3">

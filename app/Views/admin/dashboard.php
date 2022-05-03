@@ -54,10 +54,33 @@
 
   <div class="row d-flex flex-column">
     <div class="mt-3 mb-3 col">
-      <h4 class="text-center">Data Permohonan masuk tahun <span class="judul_tahun"></span></4>
+      <h4 class="text-center">Data Permohonan Informasi masuk tahun <span class="judul_tahun"></span></4>
     </div>
     <div class="col">
       <canvas id="myChart-4" width="50" height="10"></canvas>
+    </div>
+
+  </div>
+
+
+  <div class="row d-flex justify-content-center">
+    <div class="col-md-4">
+      <select id="select_tahun_pengaduan" class="custom-select custom-select-lg mb-3">
+        <option selected disabled>Pilih tahun</option>
+        <?php $year = date('Y');  ?>
+        <?php for ($i = 0; $i < 10; $i++) : ?>
+          <option value="<?= $year - $i; ?>"><?= $year - $i; ?></option>
+        <?php endfor; ?>
+      </select>
+    </div>
+  </div>
+
+  <div class="row d-flex flex-column">
+    <div class="mt-3 mb-3 col">
+      <h4 class="text-center">Data Pengaduan masuk tahun <span class="judul_tahun_pengaduan"></span></4>
+    </div>
+    <div class="col">
+      <canvas id="myChart-5" width="50" height="10"></canvas>
     </div>
 
   </div>
@@ -247,6 +270,54 @@
       $('.judul_tahun').html(tahun_select);
       let tahun = $(this).val();
       data_perbulan(tahun);
+    })
+
+    let myChart5;
+    let tahun_pengaduan = new Date().getFullYear();
+    $('.judul_tahun_pengaduan').html(tahun_pengaduan);
+    const data_perbulan_pengaduan = (tahun) => {
+      $.ajax({
+        type: "post",
+        url: "<?= base_url('adminpengaduan/api_permohonan'); ?>",
+        data: {
+          tahun
+        },
+        dataType: "json",
+        success: function(response) {
+          const ctx5 = document.getElementById('myChart-5');
+          myChart5 = new Chart(ctx5, {
+            type: 'line',
+            data: {
+              labels: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'Nopember', 'Desember'],
+              datasets: [{
+                label: 'Data pengaduan',
+                data: response,
+                fill: false,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+              }]
+            },
+            options: {
+              scales: {
+                y: {
+                  beginAtZero: true
+                }
+              }
+            }
+          });
+        }
+      });
+    }
+    data_perbulan_pengaduan(tahun_pengaduan);
+
+    $('#select_tahun_pengaduan').change(function() {
+      if (myChart5) {
+        myChart5.destroy();
+      }
+      let tahun_select = $(this).val();
+      $('.judul_tahun_pengaduan').html(tahun_select);
+      let tahun = $(this).val();
+      data_perbulan_pengaduan(tahun);
     })
   </script>
 

@@ -139,4 +139,17 @@ public/admin_file/standar_layanan/*.png
 public/admin_file/standar_layanan/*.jpg
 public/admin_file/statistik/*.png
 public/admin_file/statistik/*.jpg
+!public/bootslander_assets/vendor
+!public/moderna_assets/vendor
+public/ktp/*.jpg
+public/ktp/*.jpeg
+public/ktp/*.png
+public/ktp/*.pdf
+public/tanggapan/*.pdf
+public/tanggapan/*.png
+public/tanggapan/*.jpg
+public/tanggapan/*.jpeg
+public/user_file/*.jpeg
+public/user_file/*.jpg
+public/user_file/*.png
 

@@ -31,11 +31,12 @@ $routes->setAutoRoute(true);
 
 // We get a performance increase by specifying the default
 // route since we don't have to scan directories.
-$routes->get('/', 'Userpage::index');
-$routes->add('admineppid', 'Admineppid::index', ['filter' => 'adminauth']);
+$routes->get('/', 'Dashboard::index');
+$routes->add('administrator', 'Admineppid::index', ['filter' => 'adminauth']);
 
 
 $routes->group('userpage', ['filter' => 'userauth'], function ($routes) {
+    // $routes->add('', 'Userpage::index');
     $routes->add('v_permohonan', 'Userpage::v_permohonan');
     $routes->add('v_tambah_permohonan', 'Userpage::v_tambah_permohonan');
     $routes->add('insert_permohonan', 'Userpage::insert_permohonan');
@@ -43,6 +44,16 @@ $routes->group('userpage', ['filter' => 'userauth'], function ($routes) {
     $routes->add('edit_permohonan', 'Userpage::edit_permohonan');
     $routes->add('delete_permohonan', 'Userpage::delete_permohonan');
     $routes->add('logout', 'Userpage::logout');
+});
+
+$routes->group('pengaduan', ['filter' => 'aduauth'], function ($routes) {
+    $routes->add('v_pengaduan', 'Pengaduan::v_pengaduan');
+    $routes->add('v_form', 'Pengaduan::v_form');
+    $routes->add('insert_pengaduan', 'Pengaduan::insert_pengaduan');
+    $routes->add('download/(:any)', 'Pengaduan::download/$1');
+    $routes->add('edit_data', 'Pengaduan::edit_data');
+    $routes->add('hapus_pengaduan', 'Pengaduan::hapus_pengaduan');
+    $routes->add('logout', 'Pengaduan::logout');
 });
 
 $routes->group('admineppid', ['filter' => 'adminauth'], function ($routes) {

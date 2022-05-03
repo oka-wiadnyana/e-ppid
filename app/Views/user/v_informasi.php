@@ -14,7 +14,7 @@
                  <div class="col">
 
                      <details>
-                         <summary class="level2"> Profil Pengadilan Negeri Bangli</summary>
+                         <summary class="level2"> Profil <?= ucwords(session()->get('profil_nama')); ?></summary>
                          <div class="col p-3">
                              <table class="table table-bordered">
                                  <thead>

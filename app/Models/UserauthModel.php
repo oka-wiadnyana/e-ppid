@@ -8,7 +8,7 @@ class UserauthModel extends Model
 {
 
     protected $table            = 'user_profil';
-    protected $allowedFields    = ['nik', 'nama', 'email', 'nomor_telepon', 'alamat', 'pekerjaan', 'institusi', 'password', 'foto_profil'];
+    protected $allowedFields    = ['nik', 'nama', 'email', 'nomor_telepon', 'alamat', 'pekerjaan', 'institusi', 'password', 'foto_profil', 'ktp'];
 
     // Dates
 

@@ -186,6 +186,7 @@
                 alert(xhr.status + '\n' + xhr.responseText + '\n' + thrownError)
             },
             success: function(response) {
+                console.log(response);
                 if (response.msg == 'sukses') {
                     $(location).attr('href', '<?= base_url('admineppid/list_informasi'); ?>')
                 } else {

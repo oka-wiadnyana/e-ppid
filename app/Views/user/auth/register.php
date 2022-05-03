@@ -15,9 +15,9 @@
 
 
         <div class="login-form">
-            <form action="<?= base_url('userauth/attempt_register'); ?>" method="post">
+            <form action="<?= base_url('userauth/attempt_register'); ?>" method="post" enctype="multipart/form-data">
                 <?= csrf_field(); ?>
-                <h3 class="form-title">Register E-PPID</h3>
+                <h3 class="form-title">Register E-PELITA</h3>
                 <div class="main-form">
                     <div class='left-side'>
                         <label for="nik">NIK</label>
@@ -64,6 +64,14 @@
                         <input class="form-input" type="password" name="password2" id="password2" placeholder="Ulangi password.." value="<?= old('password2'); ?>">
                         <?php if (isset(session()->getFlashdata('validasi')['password2'])) : ?>
                             <small><?= session()->getFlashdata('validasi')['password2']; ?></small>
+                        <?php endif; ?>
+                        <label for="inputGroupFile01">Upload KTP</label>
+                        <div style="margin-top: 1rem;">
+
+                            <input type="file" class="form-control" id="inputGroupFile01" name="ktp">
+                        </div>
+                        <?php if (isset(session()->getFlashdata('validasi')['ktp'])) : ?>
+                            <small><?= session()->getFlashdata('validasi')['ktp']; ?></small>
                         <?php endif; ?>
                     </div>
 

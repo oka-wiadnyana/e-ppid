@@ -201,6 +201,36 @@
         } else {
             document.getElementById("result").innerHTML = "Sorry, your browser does not support server-sent events...";
         }
+
+        if (typeof(EventSource) !== "undefined") {
+            let source = new EventSource("<?= base_url('adminpengaduan/count_pengaduan_baru'); ?>");
+            // source.onopen = function() {
+            //     document.getElementById("sse-test").innerHTML = "Start Koneksi";
+            // };
+            source.onmessage = function(event) {
+                if (event.data != 0) {
+                    $(".notif-pengaduan").show();
+                    $(".notif-pengaduan").html(event.data);
+                    $(".notif-pengaduan-parent").show();
+                    $(".notif-pengaduan-parent").html(event.data);
+
+
+                } else {
+                    $(".notif-pengaduan").html('');
+                    $(".notif-pengaduan").hide();
+                    $(".notif-pengaduan-parent").html('');
+                    $(".notif-pengaduan-parent").hide();
+
+                    // document.querySelectorAll(".notif-gugatan").style.hide;
+
+                    console.log(event.data)
+
+                }
+
+            };
+        } else {
+            document.getElementById("result").innerHTML = "Sorry, your browser does not support server-sent events...";
+        }
     </script>
 
 

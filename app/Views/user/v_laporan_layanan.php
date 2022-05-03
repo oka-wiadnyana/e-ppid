@@ -10,9 +10,16 @@
          </div>
          <div class="row">
              <div class="col">
-                 <div class="ratio ratio-21x9">
-                     <iframe src="<?= base_url('admin_file/laporan/' . $data_laporan[0]['laporan']); ?>" title="YouTube video" allowfullscreen></iframe>
-                 </div>
+                 <?php if ($data_tidak_ada != true) : ?>
+                     <div class="col">
+                         Tidak ada data
+                     </div>
+                 <?php else : ?>
+                     <div class="ratio ratio-21x9">
+                         <iframe src="<?= base_url('admin_file/laporan/' . $data_laporan[0]['laporan']); ?>" title="YouTube video" allowfullscreen></iframe>
+                     </div>
+                 <?php endif; ?>
+
 
              </div>
          </div>

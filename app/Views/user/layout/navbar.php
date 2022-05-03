@@ -2,13 +2,18 @@
    <header id="header" class="fixed-top d-flex align-items-center ">
        <div class="container d-flex align-items-center justify-content-between">
 
-           <h1 class="logo"><a href="index.html">E-PPID</a></h1>
+           <h1 class="logo"><a href="index.html">E-Pelita</a></h1>
            <!-- Uncomment below if you prefer to use an image logo -->
            <!-- <a href=index.html" class="logo"><img src="assets/img/logo.png" alt="" class="img-fluid"></a>-->
 
            <nav id="navbar" class="navbar">
                <ul>
-                   <li><a class="link nav-link scrollto <?= ($title == "Beranda") ? "active" : ""; ?>" href="<?= base_url('userpage'); ?>">Beranda</a></li>
+                   <li class="dropdown "><a href="#" class="<?= ($title == "Beranda") ? "active" : ""; ?>"><span class="link">Home</span> <i class="bi bi-chevron-down"></i></a>
+                       <ul>
+                           <li><a href="<?= base_url('userpage'); ?>" class="link">Beranda</a></li>
+                           <li><a href="<?= base_url(''); ?>" class="link">E-Pelita</a></li>
+                       </ul>
+                   </li>
                    <li class="dropdown "><a href="#" class="<?= ($title == "Profil PPID") ? "active" : ""; ?>"><span class="link">Profil</span> <i class="bi bi-chevron-down"></i></a>
                        <ul>
                            <li><a href="<?= base_url('userpage/profil_ppid/profil'); ?>" class="link">Profil PPID</a></li>
@@ -36,6 +41,9 @@
                            <li><a href="<?= base_url('userpage/standar_pelayanan/biaya'); ?>" class="link">Biaya Layanan</a></li>
                        </ul>
                    </li>
+                   <?php if (!session()->has('user_login')) : ?>
+                       <li><a class="nav-link link" href="<?= base_url('userauth'); ?>"><span class="link">Permohonan</span></a></li>
+                   <?php endif; ?>
                    <?php if (session()->get('user_login') === true) : ?>
                        <li class="dropdown <?= ($title == "Daftar Permohonan" || $title == "Daftar Keberatan") ? "active" : ""; ?>"><a href="#"><span class="link">Permohonan</span> <i class="bi bi-chevron-down"></i></a>
                            <ul>

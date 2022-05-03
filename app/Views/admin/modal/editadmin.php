@@ -32,9 +32,11 @@
                         <div class="col-md-6 col-sm-6 ">
                             <select id="jabatan" name="jabatan" class="form-control" required>
                                 <option value="" disabled>Pilih Jabatan</option>
-                                <option value="Atasan PPID" <?= ($data_admin['jabatan'] == 'Atasan PPID') ? 'selected' : ''; ?>>Atasan PPID</option>
-                                <option value="PPID" <?= ($data_admin['jabatan'] == 'PPID') ? 'selected' : ''; ?>>PPID</option>
+                                <option value="Atasan PPID/KPT/WKPT" <?= ($data_admin['jabatan'] == 'Atasan Atasan PPID/KPT/WKPT') ? 'selected' : ''; ?>>Atasan PPID/KPT/WKPT</option>
+                                <option value="PPID Kesekretariatan/Sekretaris" <?= ($data_admin['jabatan'] == 'PPID Kesekretariatan/Sekretaris') ? 'selected' : ''; ?>>PPID Kesekretariatan/Sekretaris</option>
+                                <option value="PPID Kepaniteraan/Panitera" <?= ($data_admin['jabatan'] == 'PPID Kepaniteraan/Panitera') ? 'selected' : ''; ?>>PPID Kepaniteraan/Panitera</option>
                                 <option value="Penanggung Jawab Informasi" <?= ($data_admin['jabatan'] == 'Penanggung Jawab Informasi') ? 'selected' : ''; ?>>Penanggung Jawab Informasi</option>
+                                <option value="Panmud Hukum" <?= ($data_admin['jabatan'] == 'Panmud Hukum') ? 'selected' : ''; ?>>Panmud Hukum</option>
                                 <option value="Petugas Meja Informasi" <?= ($data_admin['jabatan'] == 'Petugas Meja Informasi') ? 'selected' : ''; ?>>Petugas Meja Informasi</option>
                             </select>
                         </div>

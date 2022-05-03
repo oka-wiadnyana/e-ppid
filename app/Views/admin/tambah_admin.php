@@ -26,10 +26,11 @@
             <div class="col-md-6 col-sm-6 ">
                 <select id="jabatan" name="jabatan" class="form-control" required value="<?= old('jabatan'); ?>">
                     <option value="" selected disabled>Pilih Jabatan</option>
-                    <option value="Atasan PPID">Atasan PPID</option>
-                    <option value="PPID Kepaniteraan">PPID Kepaniteraan</option>
-                    <option value="PPID Kesekretariatan">PPID Kesekretariatan</option>
+                    <option value="Atasan PPID/KPT/WKPT">Atasan PPID/KPT/WKPT</option>
+                    <option value="PPID Kepaniteraan/Panitera">PPID Kepaniteraan/Panitera</option>
+                    <option value="PPID Kesekretariatan/Sekretaris">PPID Kesekretariatan/Sekretaris</option>
                     <option value="Penanggung Jawab Informasi">Penanggung Jawab Informasi</option>
+                    <option value="Panmud Hukum">Panmud Hukum</option>
                     <option value="Petugas Meja Informasi">Petugas Meja Informasi</option>
                 </select>
             </div>

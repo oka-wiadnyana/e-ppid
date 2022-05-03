@@ -94,13 +94,17 @@ class PermohonanModel extends Model
         $max_nomor = $this->db->table($this->table)
             ->selectMax("nomor_register")
             ->where("YEAR(tanggal_permohonan)", $tahun_permohonan)->get()->getRowArray();
-        $max_nomor = explode('/', $max_nomor['nomor_register']);
-        $max_nomor = (int)$max_nomor[0] + 1;
-        $nomor_register_baru = "$max_nomor/$tahun_permohonan";
+        if (!empty($max_nomor['nomor_register'])) {
+            $max_nomor_register = $max_nomor['nomor_register'];
+            $max_nomor_register = explode('-', $max_nomor_register);
 
-
-
-        return $nomor_register_baru;
+            $max_nomor_register = (int)$max_nomor_register[1];
+            $max_nomor_register = $max_nomor_register + 1;
+            $next_nomor = 'INF-' . sprintf('%03s', $max_nomor_register) . '-' . $tahun_permohonan;
+        } else {
+            $next_nomor = 'INF-001-2022';
+        }
+        return $next_nomor;
     }
 
     public function find_data($id)
