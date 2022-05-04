@@ -10,7 +10,7 @@
   <meta content="" name="keywords">
 
   <!-- Favicons -->
-  <link href="<?= base_url('img'); ?>/logo-pn.png" rel="icon">
+  <link href="<?= base_url('img/epelita.png'); ?>" rel="icon">
   <link href="<?= base_url('bootslander_assets'); ?>/img/apple-touch-icon.png" rel="apple-touch-icon">
 
   <!-- Google Fonts -->
@@ -45,10 +45,10 @@
     <div class="container d-flex align-items-center justify-content-between">
 
       <div class="logo d-flex align-items-center">
-        <div class="p-2">
+        <!-- <div class="p-2">
           <img src="<?= base_url('img/' . session()->get('profil_logo')); ?>" alt="logo-ma" class="img-fluid logo-topbar">
-        </div>
-        <h1 class=""><a href="index.html"><span>E-Pelita</span></a></h1>
+        </div> -->
+        <h1 class=""><a href="index.html"><img src="<?= base_url('img/epelita.png'); ?>" class="img-fluid" alt=""> <span>E-Pelita</span></a></h1>
         <!-- Uncomment below if you prefer to use an image logo -->
         <!-- <a href="index.html"><img src="<?= base_url('bootslander_assets'); ?>/img/logo.png" alt="" class="img-fluid"></a>-->
       </div>
@@ -123,15 +123,15 @@
             <p>Layanan E-Pelita terdiri 2 (dua) kanal utama, yaitu kanal Informasi dan Kanal Pengaduan</p>
 
             <div class="icon-box" data-aos="zoom-in" data-aos-delay="100">
-              <div class="icon"><a href=""><i class="bx bx-file"></i></a></div>
-              <h4 class="title"><a href="">E-Pelita Informsi</a></h4>
+              <div class="icon"><a href="<?= base_url('userpage'); ?>"><i class="bx bx-file"></i></a></div>
+              <h4 class="title"><a href="<?= base_url('userpage'); ?>">E-Pelita Informsi</a></h4>
               <p class="description">E-Pelita Informasi, yang merupakan sarana keterbukaan informasi publik Pengadilan Tinggi Denpasar, sekaligus sebagai meja informasi elektonik untuk mengajukan permohonan informasi dan keberatan atas informasi secara online. Untuk memulai silahkan klik logo disamping</p>
             </div>
 
             <div class="icon-box" data-aos="zoom-in" data-aos-delay="200">
-              <div class="icon"><a href=""><i class="bx bx-tachometer"></i></a></div>
-              <h4 class="title"><a href="">E-Pelita Pengaduan</a></h4>
-              <p class="description">E-Pelita Pengaduan merupakan sarana meja pengaduan elektronik untuk mengajukan pengaduan baik yang sifatnya atas pengaduan dugaan pelanggaran kode etik atas aparatur Pengadilan Tinggi Denpasar maupun Pengadilan Negeri se-Bali, atau pengaduan atas layanan. Untuk pengaduan dugaan pelanggaran kode etik dapat dilakukan langsung melalui aplikasi <a href="https://www.siwas.mahkamahaagung.go.id">SIWAS</a>, atau apabila tetap ingin mengajukan melalui aplikasi ini silahkan klik logo disamping</p>
+              <div class="icon"><a href="<?= base_url('pengaduan'); ?>"><i class="bx bx-tachometer"></i></a></div>
+              <h4 class="title"><a href="<?= base_url('pengaduan'); ?>">E-Pelita Pengaduan</a></h4>
+              <p class="description">E-Pelita Pengaduan merupakan sarana pengaduan elektronik untuk mengajukan pengaduan atas layanan aparatur Pengadilan Tinggi Denpasar maupun Pengadilan Negeri se-Bali. Untuk pengaduan dugaan pelanggaran kode etik dapat dilakukan langsung melalui aplikasi <a href="https://www.siwas.mahkamahaagung.go.id">SIWAS</a> atau silahkan langsung ke meja pengaduan Pengadilan Tinggi Denpasar. Silahkan klik logo disamping untuk memulai aplikasi</p>
             </div>
 
 

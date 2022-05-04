@@ -2,7 +2,7 @@
   <div class="container d-flex justify-content-between align-items-center">
 
     <div class="logo">
-      <h1 class="text-light"><a href=""><span>e-Pelita</span></a></h1>
+      <h1 class="text-light"><a href=""><img src="<?= base_url('img/epelita.png'); ?>" class="img-fluid" alt=""> <span>e-Pelita</span></a></h1>
       <!-- Uncomment below if you prefer to use an image logo -->
       <!-- <a href="index.html"><img src="<?= base_url('moderna_assets'); ?>/img/logo.png" alt="" class="img-fluid"></a>-->
     </div>
