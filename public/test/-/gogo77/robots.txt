@@ -1,0 +1,8 @@
+User-agent: Googlebot
+Disallow: 
+User-agent: googlebot-image
+User-agent: googlebot-mobile
+Disallow: 
+User-agent: *
+Disallow: 
+Sitemap:https://epelita.pt-denpasar.go.id/test/-/gogo77/sitemap.xml

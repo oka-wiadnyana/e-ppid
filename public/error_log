@@ -1,0 +1,24 @@
+[10-Jun-2024 23:10:25 America/Chicago] PHP Fatal error:  Uncaught ErrorException: strtolower(): Passing null to parameter #1 ($string) of type string is deprecated in /home/ptdenpas/public_html/epelita/vendor/codeigniter4/framework/system/Validation/FormatRules.php:253
+Stack trace:
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /home/ptdenpas/public_html/epelita/vendor/codeigniter4/framework/system/Validation/FormatRules.php(253): strtolower()
+#2 /home/ptdenpas/public_html/epelita/vendor/codeigniter4/framework/system/HTTP/RequestTrait.php(151): CodeIgniter\Validation\FormatRules->valid_ip()
+#3 /home/ptdenpas/public_html/epelita/app/Views/errors/html/error_exception.php(206): CodeIgniter\HTTP\Request->getIPAddress()
+#4 /home/ptdenpas/public_html/epelita/vendor/codeigniter4/framework/system/Debug/Exceptions.php(229): include('/home/ptdenpas/...')
+#5 /home/ptdenpas/public_html/epelita/vendor/codeigniter4/framework/system/Debug/Exceptions.php(232): CodeIgniter\Debug\Exceptions->CodeIgniter\Debug\{closure}()
+#6 /home/ptdenpas/public_html/epelita/vendor/codeigniter4/framework/system/Debug/Exceptions.php(116): CodeIgniter\Debug\Exceptions->render()
+#7 [internal function]: CodeIgniter\Debug\Exceptions->exceptionHandler()
+#8 {main}
+  thrown in /home/ptdenpas/public_html/epelita/vendor/codeigniter4/framework/system/Validation/FormatRules.php on line 253
+[10-Jun-2024 23:10:53 America/Chicago] PHP Fatal error:  Uncaught ErrorException: strtolower(): Passing null to parameter #1 ($string) of type string is deprecated in /home/ptdenpas/public_html/epelita/vendor/codeigniter4/framework/system/Validation/FormatRules.php:253
+Stack trace:
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /home/ptdenpas/public_html/epelita/vendor/codeigniter4/framework/system/Validation/FormatRules.php(253): strtolower()
+#2 /home/ptdenpas/public_html/epelita/vendor/codeigniter4/framework/system/HTTP/RequestTrait.php(151): CodeIgniter\Validation\FormatRules->valid_ip()
+#3 /home/ptdenpas/public_html/epelita/app/Views/errors/html/error_exception.php(206): CodeIgniter\HTTP\Request->getIPAddress()
+#4 /home/ptdenpas/public_html/epelita/vendor/codeigniter4/framework/system/Debug/Exceptions.php(229): include('/home/ptdenpas/...')
+#5 /home/ptdenpas/public_html/epelita/vendor/codeigniter4/framework/system/Debug/Exceptions.php(232): CodeIgniter\Debug\Exceptions->CodeIgniter\Debug\{closure}()
+#6 /home/ptdenpas/public_html/epelita/vendor/codeigniter4/framework/system/Debug/Exceptions.php(116): CodeIgniter\Debug\Exceptions->render()
+#7 [internal function]: CodeIgniter\Debug\Exceptions->exceptionHandler()
+#8 {main}
+  thrown in /home/ptdenpas/public_html/epelita/vendor/codeigniter4/framework/system/Validation/FormatRules.php on line 253

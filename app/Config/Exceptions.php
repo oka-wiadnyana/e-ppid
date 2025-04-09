@@ -9,6 +9,9 @@ use CodeIgniter\Config\BaseConfig;
  */
 class Exceptions extends BaseConfig
 {
+    public bool $logDeprecations = true; // ini tambahan
+    public string $deprecationLogLevel = 'warning';
+
     /**
      * --------------------------------------------------------------------------
      * LOG EXCEPTIONS?
@@ -57,4 +60,6 @@ class Exceptions extends BaseConfig
      * @var array
      */
     public $sensitiveDataInTrace = [];
+
+    
 }
