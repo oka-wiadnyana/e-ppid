@@ -91,8 +91,14 @@ class Dashboard extends BaseController
                 'profil_link_video_dashboard' => 'Belum diset',
                 'profil_logo' => 'Belum diset',
                 'profil_alamat_break' => 'Belum diset',
-                'layanan_elektronik' => 'Belum diset',
-                'link_terkait' => 'Belum diset'
+                'layanan_elektronik' => [[
+                    'link' => 'Belum diset',
+                    'alias' => 'Belum diset'
+                ]],
+                'link_terkait' => [[
+                    'link' => 'Belum diset',
+                    'alias' => 'Belum diset'
+                ]]
             ];
         }
         session()->set($sessionProfil);

@@ -1,0 +1,53 @@
+version: "3.8"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8060:80"
+    volumes:
+      - .:/var/www/html
+      - ./docker/apache/vhost.conf:/etc/apache2/sites-available/000-default.conf
+    working_dir: /var/www/html
+    environment:
+      - APACHE_DOCUMENT_ROOT=/var/www/html/public
+    depends_on:
+      - db
+    networks:
+      - webnet
+      - app-network
+
+  composer:
+    image: composer:latest
+    volumes:
+      - .:/var/www/html
+    working_dir: /var/www/html
+    command: ["composer", "install"]
+    networks:
+      - webnet
+
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: e_ppid
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "33063:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - webnet
+
+volumes:
+  db_data:
+
+networks:
+  webnet:
+    driver: bridge
+
+  app-network:
+    external: true

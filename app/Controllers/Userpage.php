@@ -92,8 +92,14 @@ class Userpage extends BaseController
                 'profil_link_video_dashboard' => 'Belum diset',
                 'profil_logo' => 'Belum diset',
                 'profil_alamat_break' => 'Belum diset',
-                'layanan_elektronik' => 'Belum diset',
-                'link_terkait' => 'Belum diset'
+                'layanan_elektronik' => [[
+                    'link' => 'Belum diset',
+                    'alias' => 'Belum diset'
+                ]],
+                'link_terkait' => [[
+                    'link' => 'Belum diset',
+                    'alias' => 'Belum diset'
+                ]]
             ];
         }
         session()->set($sessionProfil);
@@ -871,7 +877,8 @@ class Userpage extends BaseController
     {
         $data_laporan = $this->laporanModel->orderBy('tahun', 'desc')->findAll(10);
 
-        $data_tidak_ada = (file_exists(ROOTPATH . 'public/admin_file/laporan/' . $data_laporan[0]['laporan'])) ?: false;
+
+        $data_tidak_ada = $data_laporan ? (file_exists(ROOTPATH . 'public/admin_file/laporan/' . $data_laporan[0]['laporan'])) : false;
         // dd($data_tidak_ada);
         $data = [
             'title' => 'Laporan Informasi',
