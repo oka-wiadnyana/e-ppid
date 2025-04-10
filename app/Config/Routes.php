@@ -31,8 +31,10 @@ $routes->setAutoRoute(true);
 
 // We get a performance increase by specifying the default
 // route since we don't have to scan directories.
-$routes->get('/', 'Dashboard::index');
+$routes->get('/', 'Userpage::index');
 $routes->add('administrator', 'Admineppid::index', ['filter' => 'adminauth']);
+$routes->add('pengaduan', 'Userpage::index');
+$routes->add('pengaduan/(:any)', 'Userpage::index');
 
 
 $routes->group('userpage', ['filter' => 'userauth'], function ($routes) {
@@ -46,15 +48,15 @@ $routes->group('userpage', ['filter' => 'userauth'], function ($routes) {
     $routes->add('logout', 'Userpage::logout');
 });
 
-$routes->group('pengaduan', ['filter' => 'aduauth'], function ($routes) {
-    $routes->add('v_pengaduan', 'Pengaduan::v_pengaduan');
-    $routes->add('v_form', 'Pengaduan::v_form');
-    $routes->add('insert_pengaduan', 'Pengaduan::insert_pengaduan');
-    $routes->add('download/(:any)', 'Pengaduan::download/$1');
-    $routes->add('edit_data', 'Pengaduan::edit_data');
-    $routes->add('hapus_pengaduan', 'Pengaduan::hapus_pengaduan');
-    $routes->add('logout', 'Pengaduan::logout');
-});
+// $routes->group('pengaduan', ['filter' => 'aduauth'], function ($routes) {
+//     $routes->add('v_pengaduan', 'Pengaduan::v_pengaduan');
+//     $routes->add('v_form', 'Pengaduan::v_form');
+//     $routes->add('insert_pengaduan', 'Pengaduan::insert_pengaduan');
+//     $routes->add('download/(:any)', 'Pengaduan::download/$1');
+//     $routes->add('edit_data', 'Pengaduan::edit_data');
+//     $routes->add('hapus_pengaduan', 'Pengaduan::hapus_pengaduan');
+//     $routes->add('logout', 'Pengaduan::logout');
+// });
 
 $routes->group('admineppid', ['filter' => 'adminauth'], function ($routes) {
     $routes->add('/', 'Admineppid::index');
@@ -122,6 +124,7 @@ $routes->group('admineppid', ['filter' => 'adminauth'], function ($routes) {
     $routes->add('insert_layanan_elektronik', 'Admineppid::insert_layanan_elektronik');
     $routes->add('edit_layanan_elektronik', 'Admineppid::edit_layanan_elektronik');
     $routes->add('delete_layanan_elektronik', 'Admineppid::delete_layanan_elektronik');
+    $routes->add('v_user', 'Admineppid::v_user');
     $routes->add('logout', 'Admineppid::logout');
 });
 

@@ -385,10 +385,11 @@ class Userpage extends BaseController
             $cc = $email_kpt['email'];
             $bcc = $email_admin['email'];
             $recipients = [$to, $cc, $bcc];
-            $status_email  = lets_mail($subject, $msg, $recipients);
+            // $status_email  = lets_mail($subject, $msg, $recipients);
 
 
-            session()->setFlashdata('success', 'Data berhasil diinput, ' . $status_email);
+            // session()->setFlashdata('success', 'Data berhasil diinput, ' . $status_email);
+            session()->setFlashdata('success', 'Data berhasil diinput, ');
             return redirect()->to(base_url('userpage/v_permohonan'));
         } else {
             session()->setFlashdata('fail', 'Data gagal diinput');
@@ -397,10 +398,13 @@ class Userpage extends BaseController
 
     public function download_file_permohonan($file)
     {
-        $client = Services::curlrequest();
-        $user_file = $client->send('GET', base_url('user_file/' . $file));
+          $client = Services::curlrequest();
+        $response = $client->request('GET', base_url('user_file/' . $file));
 
-        return $user_file;
+        return $this->response
+            ->setHeader('Content-Type', $response->getHeaderLine('Content-Type'))
+            ->setHeader('Content-Disposition', 'attachment; filename="' . $file . '"')
+            ->setBody($response->getBody());
     }
 
     public function modal_edit()
@@ -510,11 +514,12 @@ class Userpage extends BaseController
             $cc = $email_kpt['email'];
             $bcc = $email_admin['email'];
             $recipients = [$to, $cc, $bcc];
-            $status_email  = lets_mail($subject, $msg, $recipients);
+            // $status_email  = lets_mail($subject, $msg, $recipients);
 
             // $email_user = 'okawinza@gmail.com';
 
-            session()->setFlashdata('success', 'Data berhasil diubah, ' . $status_email);
+            // session()->setFlashdata('success', 'Data berhasil diubah, ' . $status_email);
+            session()->setFlashdata('success', 'Data berhasil diubah, ');
             return redirect()->to(base_url('userpage/v_permohonan'));
         } else {
             session()->setFlashdata('fail', 'Data gagal diinput');
@@ -607,10 +612,11 @@ class Userpage extends BaseController
                 $cc = $email_kpt['email'];
                 $bcc = $email_admin['email'];
                 $recipients = [$to, $cc, $bcc];
-                $status_email  = lets_mail($subject, $msg, $recipients);
+                // $status_email  = lets_mail($subject, $msg, $recipients);
                 // $email_user = 'okawinza@gmail.com';
 
-                session()->setFlashdata('success', 'Data berhasil diinput, ' . $status_email);
+                // session()->setFlashdata('success', 'Data berhasil diinput, ' . $status_email);
+                session()->setFlashdata('success', 'Data berhasil diinput, ');
                 return redirect()->to(base_url('userpage/v_keberatan'));
             } else {
                 session()->setFlashdata('fail', 'Data gagal diinput');
@@ -636,10 +642,11 @@ class Userpage extends BaseController
                 $cc = $email_kpt['email'];
                 $bcc = $email_admin['email'];
                 $recipients = [$to, $cc, $bcc];
-                $status_email  = lets_mail($subject, $msg, $recipients);
+                // $status_email  = lets_mail($subject, $msg, $recipients);
                 // $email_user = 'okawinza@gmail.com';
 
-                session()->setFlashdata('success', 'Data berhasil diinput, ' . $status_email);
+                // session()->setFlashdata('success', 'Data berhasil diinput, ' . $status_email);
+                session()->setFlashdata('success', 'Data berhasil diinput, ' );
                 return redirect()->to(base_url('userpage/v_keberatan'));
             } else {
                 session()->setFlashdata('fail', 'Data gagal diinput');
@@ -777,10 +784,11 @@ class Userpage extends BaseController
             $cc = $email_kpt['email'];
             $bcc = $email_admin['email'];
             $recipients = [$to, $cc, $bcc];
-            $status_email  = lets_mail($subject, $msg, $recipients);
+            // $status_email  = lets_mail($subject, $msg, $recipients);
             // $email_user = 'okawinza@gmail.com';
 
-            session()->setFlashdata('success', 'Data berhasil diubah, ' . $status_email);
+            // session()->setFlashdata('success', 'Data berhasil diubah, ' . $status_email);
+            session()->setFlashdata('success', 'Data berhasil diubah, ');
             return redirect()->to(base_url('userpage/v_keberatan'));
         } else {
             session()->setFlashdata('fail', ['Data gagal diubah']);
@@ -866,11 +874,15 @@ class Userpage extends BaseController
 
     public function file_check($nama_file)
     {
-        $client = \Config\Services::curlrequest();
-        $response = $client->send('GET', base_url('admin_file/statistik/' . $nama_file));
+        $client = Services::curlrequest();
+        $response = $client->request('GET', base_url('admin_file/statistik/' . $nama_file));
         // $body = $response->getBody();
 
-        return $response;
+       
+        return $this->response
+            ->setHeader('Content-Type', $response->getHeaderLine('Content-Type'))
+            ->setHeader('Content-Disposition', 'attachment; filename="' . $nama_file . '"')
+            ->setBody($response->getBody());
     }
 
     public function v_laporan_layanan()
@@ -894,10 +906,13 @@ class Userpage extends BaseController
         if (file_exists(ROOTPATH . 'public/admin_file/laporan/' . $nama_file)) {
 
             $client = \Config\Services::curlrequest();
-            $response = $client->send('GET', base_url('admin_file/laporan/' . $nama_file));
+            $response = $client->request('GET', base_url('admin_file/laporan/' . $nama_file));
             // $body = $response->getBody();
 
-            return $response;
+            return $this->response
+                ->setHeader('Content-Type', $response->getHeaderLine('Content-Type'))
+                ->setHeader('Content-Disposition', 'attachment; filename="' . $nama_file . '"')
+                ->setBody($response->getBody());
         } else {
             return "File tidak ada";
         }

@@ -101,9 +101,9 @@ _modules/*
 
 # Netbeans
 nbproject/
-build/
+/build/
 nbbuild/
-dist/
+/dist/
 nbdist/
 nbactions.xml
 nb-configuration.xml
@@ -152,6 +152,7 @@ public/tanggapan/*.jpeg
 public/user_file/*.jpeg
 public/user_file/*.jpg
 public/user_file/*.png
+public/img/logo-pn.png
 /public.zip
 bfg.jar
 

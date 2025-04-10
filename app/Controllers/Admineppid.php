@@ -1238,6 +1238,7 @@ class Admineppid extends BaseController
         $embed_id = $this->request->getVar('embed_id');
         $logo = $this->request->getFile('logo');
         $logo_lama = $this->request->getVar('logo-lama');
+        // dd($logo_lama);
         $id = $this->request->getVar('id');
 
         if (isset($id)) {
@@ -1464,10 +1465,11 @@ class Admineppid extends BaseController
             $cc = $email_kpt['email'];
             $bcc = $email_admin['email'];
             $recipients = [$to, $cc, $bcc];
-            $status_email  = lets_mail($subject, $msg, $recipients);
+            // $status_email  = lets_mail($subject, $msg, $recipients);
 
 
-            session()->setFlashdata('success', 'Jawaban berhasil diinput, ' . $status_email);
+            // session()->setFlashdata('success', 'Jawaban berhasil diinput, ' . $status_email);
+            session()->setFlashdata('success', 'Jawaban berhasil diinput, ');
             return redirect()->to('admineppid/daftar_permohonan');
         } else {
             session()->setFlashdata('fail', ['Jawaban gagal diinput']);
@@ -1548,9 +1550,10 @@ class Admineppid extends BaseController
             $cc = $email_kpt['email'];
             $bcc = $email_admin['email'];
             $recipients = [$to, $cc, $bcc];
-            $status_email  = lets_mail($subject, $msg, $recipients);
+            // $status_email  = lets_mail($subject, $msg, $recipients);
 
-            session()->setFlashdata('success', 'Jawaban berhasil diinput, ' . $status_email);
+            // session()->setFlashdata('success', 'Jawaban berhasil diinput, ' . $status_email);
+            session()->setFlashdata('success', 'Jawaban berhasil diinput, ' );
             return redirect()->to('admineppid/daftar_permohonan');
         } else {
             session()->setFlashdata('fail', ['Jawaban gagal diinput']);
@@ -1714,10 +1717,11 @@ class Admineppid extends BaseController
             $cc = $email_kpt['email'];
             $bcc = $email_admin['email'];
             $recipients = [$to, $cc, $bcc];
-            $status_email  = lets_mail($subject, $msg, $recipients);
+            // $status_email  = lets_mail($subject, $msg, $recipients);
 
 
-            session()->setFlashdata('success', 'Tanggapan berhasil diinput, ' . $status_email);
+            // session()->setFlashdata('success', 'Tanggapan berhasil diinput, ' . $status_email);
+            session()->setFlashdata('success', 'Tanggapan berhasil diinput, ');
             return redirect()->to('admineppid/daftar_keberatan');
         } else {
             session()->setFlashdata('fail', ['Tanggapan gagal diinput']);
@@ -2615,10 +2619,13 @@ class Admineppid extends BaseController
     public function file_check_laporan($nama_file)
     {
         $client = \Config\Services::curlrequest();
-        $response = $client->send('GET', base_url('admin_file/laporan/' . $nama_file));
+        $response = $client->request('GET', base_url('admin_file/laporan/' . $nama_file));
         // $body = $response->getBody();
 
-        return $response;
+        return $this->response
+            ->setHeader('Content-Type', $response->getHeaderLine('Content-Type'))
+            ->setHeader('Content-Disposition', 'attachment; filename="' . $nama_file . '"')
+            ->setBody($response->getBody());
     }
 
     public function v_prasyarat()
@@ -3268,9 +3275,9 @@ class Admineppid extends BaseController
         if ($data) {
 
             $client = Services::curlrequest();
-            $user_file = $client->send('GET', base_url('ktp/' . $data));
+            $user_file = $client->request('GET', base_url('ktp/' . $data));
 
-            return $user_file;
+            return $this->response->setHeader('Content-Type', $user_file->getHeaderLine('Content-Type'))->setHeader('Content-Disposition', 'attachment; filename="' . $data . '"')->setBody($user_file->getBody());
         } else {
             echo "file not exist";
         }
@@ -3284,9 +3291,9 @@ class Admineppid extends BaseController
         if ($data) {
 
             $client = Services::curlrequest();
-            $user_file = $client->send('GET', base_url('ktp/' . $data));
+            $user_file = $client->request('GET', base_url('ktp/' . $data));
 
-            return $user_file;
+            return $this->response->setHeader('Content-Type', $user_file->getHeaderLine('Content-Type'))->setHeader('Content-Disposition', 'attachment; filename="' . $data . '"')->setBody($user_file->getBody());
         } else {
             echo "file not exist";
         }

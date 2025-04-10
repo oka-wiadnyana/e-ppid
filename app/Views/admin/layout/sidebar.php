@@ -2,7 +2,7 @@
     <div class="left_col scroll-view">
         <!-- menu profile quick info -->
         <div class="navbar nav_title" style="border: 0;">
-            <a href="index.html" class="site_title"><i class="fa fa-book"></i> <span>E-PELITA Admin</span></a>
+            <a href="index.html" class="site_title"><i class="fa fa-book"></i> <span>E-PPID Admin</span></a>
         </div>
 
         <div class="clearfix"></div>
@@ -39,7 +39,7 @@
                             <ul class="nav child_menu">
                                 <li><a href="<?= base_url('admineppid/v_admin'); ?>">Admin</a></li>
                                 <li><a href="<?= base_url('admineppid/v_user'); ?>">User Informasi</a></li>
-                                <li><a href="<?= base_url('adminpengaduan/v_user'); ?>">User Pengaduan</a></li>
+                                <!-- <li><a href="<?= base_url('adminpengaduan/v_user'); ?>">User Pengaduan</a></li> -->
                             </ul>
                         </li>
                     </ul>
@@ -81,7 +81,7 @@
                 </ul>
 
                 <!-- Pengaduan -->
-                <?php if (session()->get('admin_jabatan') == 'Atasan PPID/KPT/WKPT' || session()->get('admin_jabatan') == 'PPID Kepaniteraan/Panitera' || session()->get('admin_jabatan') == 'PPID Kesekretariatan/Sekretaris' || session()->get('admin_jabatan') == 'Panmud Hukum' || session()->get('admin_jabatan') == 'admin') : ?>
+                <!-- <?php if (session()->get('admin_jabatan') == 'Atasan PPID/KPT/WKPT' || session()->get('admin_jabatan') == 'PPID Kepaniteraan/Panitera' || session()->get('admin_jabatan') == 'PPID Kesekretariatan/Sekretaris' || session()->get('admin_jabatan') == 'Panmud Hukum' || session()->get('admin_jabatan') == 'admin') : ?>
                     <h3>Pengaduan</h3>
                     <ul class="nav side-menu">
 
@@ -94,7 +94,7 @@
 
 
                     </ul>
-                <?php endif; ?>
+                <?php endif; ?> -->
             </div>
 
 

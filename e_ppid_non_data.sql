@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Apr 10, 2025 at 05:20 AM
+-- Generation Time: Apr 10, 2025 at 09:28 AM
 -- Server version: 10.6.19-MariaDB-log
 -- PHP Version: 8.3.19
 
@@ -65,6 +65,17 @@ CREATE TABLE `jenis_informasi` (
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+--
+-- Dumping data for table `jenis_informasi`
+--
+
+INSERT INTO `jenis_informasi` (`id`, `jenis_informasi`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 'Perkara dan Putusan', NULL, NULL, NULL),
+(2, 'Kepegawaian', NULL, NULL, NULL),
+(3, 'Pengawasan', NULL, NULL, NULL),
+(4, 'Anggaran dan Aset', NULL, NULL, NULL),
+(5, 'Lainnya', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -162,6 +173,15 @@ CREATE TABLE `level1` (
   `deleted_at` timestamp NULL DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
+--
+-- Dumping data for table `level1`
+--
+
+INSERT INTO `level1` (`id`, `level1`, `nama`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(4, 'A', 'Informasi yang Wajib Diumumkan Secara Berkala oleh Pengadilan', NULL, '2022-01-10 23:27:45', NULL),
+(5, 'B', 'Informasi Serta Merta Pengadilan', NULL, '2022-05-20 09:41:12', NULL),
+(6, 'C', 'Informasi yang Wajib Tersedia setiap Saat dan Dapat Diakses oleh Publik', NULL, NULL, NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -177,6 +197,22 @@ CREATE TABLE `level2` (
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+--
+-- Dumping data for table `level2`
+--
+
+INSERT INTO `level2` (`id`, `level1`, `level2`, `nama`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 'A', '1', 'Informasi Profil dan Pelayanan Dasar Pengadilan', NULL, '2022-01-10 02:59:48', NULL),
+(2, 'A', '2', 'Informasi berkaitan dengan hak masyarakat', NULL, NULL, NULL),
+(3, 'A', '3', 'Informasi Program Kerja, Kegiatan, Keuangan dan Kinerja Pengadilan', NULL, NULL, NULL),
+(4, 'A', '4', 'Informasi Laporan Akses Informasi', NULL, NULL, NULL),
+(6, 'B', '1', 'Informasi Serta Merta', NULL, NULL, NULL),
+(7, 'C', '1', 'Umum', NULL, NULL, NULL),
+(8, 'C', '2', 'Informasi tentang perkara dan persidangan', NULL, NULL, NULL),
+(9, 'C', '3', 'Informasi tentang Pengawasan dan Pendispilinan', NULL, NULL, NULL),
+(10, 'C', '4', ' Informasi tentang Peraturan, Kebijakan dan Hasil Penelitian', NULL, NULL, NULL),
+(11, 'C', '5', ' Informasi tentang Organisasi, Administrasi, Kepegawaian dan Keuangan', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -194,6 +230,36 @@ CREATE TABLE `level3` (
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+--
+-- Dumping data for table `level3`
+--
+
+INSERT INTO `level3` (`id`, `level1`, `level2`, `level3`, `nama`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 'A', '1', '1', 'Profil Pengadilan Tinggi Denpasar', NULL, '2022-05-02 04:05:36', NULL),
+(3, 'A', '1', '3', 'Informasi biaya perkara dan informasi biaya kepaniteraan', NULL, NULL, NULL),
+(4, 'A', '1', '4', 'Agenda sidang', NULL, NULL, NULL),
+(5, 'A', '2', '1', 'Hak-hak para pihak', NULL, NULL, NULL),
+(6, 'A', '2', '2', 'Tata cara pengaduan dugaan pelanggaran', NULL, NULL, NULL),
+(7, 'A', '2', '3', 'Hak-hak pelapor', NULL, NULL, NULL),
+(8, 'A', '2', '4', 'Tata cara memperoleh layanan informasi', NULL, NULL, NULL),
+(9, 'A', '2', '5', 'Hak-hak para pemohon informasi', NULL, NULL, NULL),
+(10, 'A', '2', '5', 'Biaya perolehan informasi', NULL, NULL, NULL),
+(11, 'A', '3', '1', 'Sistem Akuntabilitas kinerja', NULL, NULL, NULL),
+(12, 'A', '3', '2', 'Laporan Realisasi Anggaran', NULL, NULL, NULL),
+(13, 'A', '3', '3', 'Daftar Aset', NULL, NULL, NULL),
+(14, 'A', '3', '4', 'Pengumuman pengadaan barang dan jasa', NULL, NULL, NULL),
+(15, 'A', '4', '1', 'Laporan akses informasi', NULL, NULL, NULL),
+(17, 'B', '1', '1', 'Informasi Serta Merta', NULL, NULL, NULL),
+(18, 'C', '1', '1', 'Umum', NULL, NULL, NULL),
+(19, 'C', '2', '1', 'Informasi putusan', NULL, NULL, NULL),
+(20, 'C', '2', '2', 'Laporan penggunaan biaya perkara', NULL, NULL, NULL),
+(21, 'C', '2', '3', 'Statistik perkara', NULL, NULL, NULL),
+(22, 'C', '3', '1', 'Informasi pengawasan dan pendisiplinan', NULL, NULL, NULL),
+(23, 'C', '4', '1', 'Informasi tentang peraturan dan kebijakan', NULL, NULL, NULL),
+(25, 'C', '5', '2', 'Standar dan maklumat pelayanan', NULL, NULL, NULL),
+(26, 'C', '5', '3', 'Anggaran serta laporan keuangannya', NULL, NULL, NULL),
+(30, 'A', '1', '2', 'Prosedur Alur Perkara', '2022-04-17 17:16:16', '2022-04-17 18:00:21', NULL);
 
 -- --------------------------------------------------------
 
@@ -244,6 +310,36 @@ CREATE TABLE `migrations` (
   `time` int(11) NOT NULL,
   `batch` int(11) UNSIGNED NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+--
+-- Dumping data for table `migrations`
+--
+
+INSERT INTO `migrations` (`id`, `version`, `class`, `group`, `namespace`, `time`, `batch`) VALUES
+(19, '2021-12-15-122404', 'App\\Database\\Migrations\\Eppid', 'default', 'App', 1640640609, 1),
+(20, '2021-12-15-132254', 'App\\Database\\Migrations\\JumlahPermohonan', 'default', 'App', 1640640609, 1),
+(21, '2021-12-27-202951', 'App\\Database\\Migrations\\Profilsatker', 'default', 'App', 1640640609, 1),
+(22, '2021-12-29-210708', 'App\\Database\\Migrations\\Videoinformasi', 'default', 'App', 1640813269, 2),
+(23, '2022-01-06-131247', 'App\\Database\\Migrations\\Profilppid', 'default', 'App', 1641475865, 3),
+(27, '2022-01-06-132502', 'App\\Database\\Migrations\\InformasiLevel1', 'default', 'App', 1641476000, 5),
+(25, '2022-01-06-132726', 'App\\Database\\Migrations\\InformasiLevel2', 'default', 'App', 1641475866, 3),
+(26, '2022-01-06-132928', 'App\\Database\\Migrations\\InformasiLevel3', 'default', 'App', 1641475927, 4),
+(28, '2022-01-12-203404', 'App\\Database\\Migrations\\ProfilEppid', 'default', 'App', 1642019858, 6),
+(30, '2022-01-17-044429', 'App\\Database\\Migrations\\User', 'default', 'App', 1642415614, 7),
+(31, '2022-01-19-215802', 'App\\Database\\Migrations\\JenisInformasi', 'default', 'App', 1642629828, 8),
+(37, '2022-01-23-133249', 'App\\Database\\Migrations\\PermohonanInformasi', 'default', 'App', 1643313587, 9),
+(43, '2022-01-27-201445', 'App\\Database\\Migrations\\ProsesPermohonan', 'default', 'App', 1643549372, 10),
+(44, '2022-01-31-124128', 'App\\Database\\Migrations\\JenisKeberatan', 'default', 'App', 1643633345, 11),
+(46, '2022-01-31-125122', 'App\\Database\\Migrations\\Keberatan', 'default', 'App', 1643667852, 12),
+(47, '2022-01-31-230712', 'App\\Database\\Migrations\\ProsesKeberatan', 'default', 'App', 1643670678, 13),
+(48, '2022-02-01-235623', 'App\\Database\\Migrations\\Peraturan', 'default', 'App', 1643759895, 14),
+(51, '2022-02-21-113721', 'App\\Database\\Migrations\\StandarLayanan', 'default', 'App', 1645477452, 15),
+(53, '2022-02-22-083009', 'App\\Database\\Migrations\\StatistikPermohonan', 'default', 'App', 1645519093, 16),
+(54, '2022-02-22-143430', 'App\\Database\\Migrations\\LaporanLayanan', 'default', 'App', 1645540602, 17),
+(55, '2022-02-22-211405', 'App\\Database\\Migrations\\Prasyarat', 'default', 'App', 1645564633, 18),
+(56, '2022-02-22-222335', 'App\\Database\\Migrations\\LinkTerkait', 'default', 'App', 1645568773, 19),
+(57, '2022-02-22-234849', 'App\\Database\\Migrations\\LayananElektronik', 'default', 'App', 1645573884, 20),
+(58, '2022-02-23-003009', 'App\\Database\\Migrations\\Admin', 'default', 'App', 1645577214, 21);
 
 -- --------------------------------------------------------
 
@@ -504,6 +600,18 @@ CREATE TABLE `video_informasi` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 --
+-- Dumping data for table `video_informasi`
+--
+
+INSERT INTO `video_informasi` (`id`, `uraian`, `embed_id`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(43, 'PELAYANAN PRIMA PELAYANAN TERPADU SATU PINTU (PTSP) PENGADILAN TINGGI DENPASAR', '50F3g1CZxzs', '2022-05-21 10:37:04', '2022-05-21 10:37:04', NULL),
+(44, 'VIDEO PROFILE PEMBANGUNAN ZI MENUJU WBBM PENGADILAN TINGGI DENPASAR TAHUN 2021', 'Pmzqwywd9Aw', '2022-05-21 10:37:35', '2022-05-21 10:37:35', NULL),
+(45, 'Video Profile Pengadilan Tinggi Denpasar 2021', 'JsleUW85V8', '2022-05-21 10:38:06', '2022-05-21 10:38:06', NULL),
+(46, 'Pelayanan Terpadu Satu Pintu Pengadilan Tinggi Denpasar 2021', '1hF0KZ6KokY', '2022-05-21 16:52:11', '2022-05-21 16:52:11', NULL),
+(47, 'Yel Yel Zona Integritas Pengadilan Tinggi Denpasar ', 'oynK0TnQ4_c', '2022-05-21 16:52:45', '2022-05-21 16:52:45', NULL),
+(48, 'Program Prioritas Pengadilan Tinggi Denpasar Tahun 2022', 'LxFg18IbKxc', '2022-05-22 20:29:39', '2022-05-22 20:29:39', NULL);
+
+--
 -- Indexes for dumped tables
 --
 
@@ -684,7 +792,7 @@ ALTER TABLE `admin_auth`
 -- AUTO_INCREMENT for table `jenis_informasi`
 --
 ALTER TABLE `jenis_informasi`
-  MODIFY `id` int(5) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(5) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `jenis_keberatan`
@@ -720,19 +828,19 @@ ALTER TABLE `layanan_elektronik`
 -- AUTO_INCREMENT for table `level1`
 --
 ALTER TABLE `level1`
-  MODIFY `id` int(5) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(5) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `level2`
 --
 ALTER TABLE `level2`
-  MODIFY `id` int(5) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(5) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `level3`
 --
 ALTER TABLE `level3`
-  MODIFY `id` int(5) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(5) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT for table `link_informasi`
@@ -750,7 +858,7 @@ ALTER TABLE `link_terkait`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
 
 --
 -- AUTO_INCREMENT for table `pengaduan`
@@ -834,7 +942,7 @@ ALTER TABLE `user_profil`
 -- AUTO_INCREMENT for table `video_informasi`
 --
 ALTER TABLE `video_informasi`
-  MODIFY `id` int(5) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(5) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

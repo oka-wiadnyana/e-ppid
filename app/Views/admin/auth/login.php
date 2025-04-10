@@ -70,10 +70,10 @@
                         <div class="separator">
                             <div class="clearfix"></div>
                             <br />
-                            <div>
+                            <!-- <div>
                                 <h1><i class="fa fa-paw"></i> onsdee86</h1>
                                 <p>©2022 All Rights Reserved. onsdee86@gmail.com</p>
-                            </div>
+                            </div> -->
                         </div>
                     </form>
                 </section>
